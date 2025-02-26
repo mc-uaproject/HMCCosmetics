@@ -75,6 +75,7 @@ public class Settings {
     private static final String BACKPACK_PREVENT_DARKNESS_PATH = "backpack-prevent-darkness";
     private static final String BETTER_HUD_PATH = "betterhud";
     private static final String BETTER_HUD_HIDE_IN_WARDROBE_PATH = "wardrobe-hide";
+    private static final String HIDE_WHEN_INVISIBLE_PATH = "hide-when-invisible";
 
     @Getter
     private static String defaultMenu;
@@ -173,6 +174,8 @@ public class Settings {
     private static boolean allPlayersHidden;
     @Getter
     private static boolean wardrobeHideHud;
+    @Getter
+    private static boolean hideWhenInvisible;
 
 
     public static void load(ConfigurationNode source) {
@@ -285,6 +288,8 @@ public class Settings {
             MessagesUtil.sendDebugMessages("There is a deprecated way of using WG hook setting. Change player_move_check to player-move-check in your configuration to prevent issues in the future. ", Level.WARNING);
             worldGuardMoveCheck = worldGuardSettings.node(HOOK_WG_MOVE_CHECK_PATH_LEGACY).getBoolean(true);
         }
+
+        hideWhenInvisible = source.node(HIDE_WHEN_INVISIBLE_PATH).getBoolean(true);
     }
 
     public static Vector loadVector(final ConfigurationNode config) {

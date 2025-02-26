@@ -4,6 +4,7 @@
 config-version: 1
 
 default-menu: defaultmenu
+hide-when-invisible: true
 debug-mode: false
 database-settings:
   type: sqlite # SQLite (Default), MYSQL, NONE

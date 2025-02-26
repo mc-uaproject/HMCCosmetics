@@ -295,6 +295,7 @@ public class PlayerGameListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerPotionEffect(EntityPotionEffectEvent event) {
+        if (!Settings.isHideWhenInvisible()) return;
         if (!event.getModifiedType().equals(PotionEffectType.INVISIBILITY)) return;
         if (!event.getEntityType().equals(EntityType.PLAYER)) return;
         Player player = (Player) event.getEntity();
