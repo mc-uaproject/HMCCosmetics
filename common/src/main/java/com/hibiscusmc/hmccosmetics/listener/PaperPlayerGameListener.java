@@ -25,6 +25,7 @@ public class PaperPlayerGameListener implements Listener {
         if (user == null) return;
         if (user.isInWardrobe()) return;
         if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK)) user.respawnBackpack();
+        if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK2)) user.respawnBackpack2();
     }
 
     private CosmeticSlot slotTypeToCosmeticType(PlayerArmorChangeEvent.SlotType slotType) {

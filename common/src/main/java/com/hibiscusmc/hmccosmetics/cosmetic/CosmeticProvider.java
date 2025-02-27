@@ -28,6 +28,8 @@ public abstract class CosmeticProvider {
 
         Map.entry(CosmeticSlot.BACKPACK, CosmeticBackpackType::new),
 
+        Map.entry(CosmeticSlot.BACKPACK2, CosmeticBackpack2Type::new),
+
         Map.entry(CosmeticSlot.BALLOON, CosmeticBalloonType::new),
 
         Map.entry(CosmeticSlot.EMOTE, CosmeticEmoteType::new)

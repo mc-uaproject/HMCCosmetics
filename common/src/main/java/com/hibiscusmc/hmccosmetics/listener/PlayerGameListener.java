@@ -11,10 +11,7 @@ import com.hibiscusmc.hmccosmetics.config.Settings;
 import com.hibiscusmc.hmccosmetics.config.WardrobeSettings;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticSlot;
-import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticArmorType;
-import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticBackpackType;
-import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticBalloonType;
-import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticEmoteType;
+import com.hibiscusmc.hmccosmetics.cosmetic.types.*;
 import com.hibiscusmc.hmccosmetics.gui.Menu;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUsers;
@@ -129,6 +126,9 @@ public class PlayerGameListener implements Listener {
             if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK) && user.getUserBackpackManager() != null) {
                 user.respawnBackpack();
             }
+            if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK2) && user.getUserBackpack2Manager() != null) {
+                user.respawnBackpack2();
+            }
             if (user.hasCosmeticInSlot(CosmeticSlot.BALLOON)) {
                 user.respawnBalloon();
             }
@@ -207,6 +207,7 @@ public class PlayerGameListener implements Listener {
             return;
         }
         user.updateCosmetic(CosmeticSlot.BACKPACK);
+        user.updateCosmetic(CosmeticSlot.BACKPACK2);
         user.updateCosmetic(CosmeticSlot.BALLOON);
     }
 
@@ -215,19 +216,33 @@ public class PlayerGameListener implements Listener {
         if (!(event.getEntity() instanceof Player player)) return;
         CosmeticUser user = CosmeticUsers.getUser(player);
         if (user == null || user.isInWardrobe()) return;
-        if (!user.hasCosmeticInSlot(CosmeticSlot.BACKPACK)) return;
-        Pose pose = event.getPose();
-        if (pose.equals(Pose.STANDING)) {
-            // #84, Riptides mess with backpacks
-            ItemStack currentItem = player.getInventory().getItemInMainHand();
-            if (currentItem.containsEnchantment(Enchantment.RIPTIDE)) return;
-            if (!user.isBackpackSpawned()) {
-                user.spawnBackpack((CosmeticBackpackType) user.getCosmetic(CosmeticSlot.BACKPACK));
+        if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK)) {
+            Pose pose = event.getPose();
+            if (pose.equals(Pose.STANDING)) {
+                // #84, Riptides mess with backpacks
+                ItemStack currentItem = player.getInventory().getItemInMainHand();
+                if (currentItem.containsEnchantment(Enchantment.RIPTIDE)) return;
+                if (!user.isBackpackSpawned()) {
+                    user.spawnBackpack((CosmeticBackpackType) user.getCosmetic(CosmeticSlot.BACKPACK));
+                }
             }
-            return;
+            else if (pose.equals(Pose.SLEEPING) || pose.equals(Pose.SWIMMING) || pose.equals(Pose.FALL_FLYING) || pose.equals(Pose.SPIN_ATTACK)) {
+                user.despawnBackpack();
+            }
         }
-        if (pose.equals(Pose.SLEEPING) || pose.equals(Pose.SWIMMING) || pose.equals(Pose.FALL_FLYING) || pose.equals(Pose.SPIN_ATTACK)) {
-            user.despawnBackpack();
+        if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK2)) {
+            Pose pose = event.getPose();
+            if (pose.equals(Pose.STANDING)) {
+                // #84, Riptides mess with backpacks
+                ItemStack currentItem = player.getInventory().getItemInMainHand();
+                if (currentItem.containsEnchantment(Enchantment.RIPTIDE)) return;
+                if (!user.isBackpackSpawned()) {
+                    user.spawnBackpack2((CosmeticBackpack2Type) user.getCosmetic(CosmeticSlot.BACKPACK2));
+                }
+            }
+            else if (pose.equals(Pose.SLEEPING) || pose.equals(Pose.SWIMMING) || pose.equals(Pose.FALL_FLYING) || pose.equals(Pose.SPIN_ATTACK)) {
+                user.despawnBackpack2();
+            }
         }
     }
 
@@ -327,8 +342,13 @@ public class PlayerGameListener implements Listener {
         ItemStack currentItem = event.getPlayer().getInventory().getItem(event.getNewSlot());
         if (currentItem == null) return;
         if (!currentItem.hasItemMeta()) return;
-        if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK) && currentItem.containsEnchantment(Enchantment.RIPTIDE)) {
-            user.despawnBackpack();
+        if (currentItem.containsEnchantment(Enchantment.RIPTIDE)) {
+            if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK)) {
+                user.despawnBackpack();
+            }
+            if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK2)) {
+                user.despawnBackpack2();
+            }
         }
     }
 
@@ -645,16 +665,24 @@ public class PlayerGameListener implements Listener {
                 if (user == null) return;
                 MessagesUtil.sendDebugMessages("Mount Packet Sent - " + user.getUniqueId());
 
-                if (!user.hasCosmeticInSlot(CosmeticSlot.BACKPACK)) return;
-                if (user.getUserBackpackManager() == null) return;
+                if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK) && user.getUserBackpackManager() != null) {
+                    // Basically, take the original passengers and "bump" them to the end of the list
+                    int[] originalPassengers = event.getPacket().getIntegerArrays().read(0);
+                    List<Integer> passengers = new ArrayList<>(user.getUserBackpackManager().getEntityManager().getIds());
 
-                // Basically, take the original passengers and "bump" them to the end of the list
-                int[] originalPassengers = event.getPacket().getIntegerArrays().read(0);
-                List<Integer> passengers = new ArrayList<>(user.getUserBackpackManager().getEntityManager().getIds());
+                    passengers.addAll(Arrays.stream(originalPassengers).boxed().toList());
 
-                passengers.addAll(Arrays.stream(originalPassengers).boxed().toList());
+                    event.getPacket().getIntegerArrays().write(0, passengers.stream().mapToInt(Integer::intValue).toArray());
+                }
+                if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK2) && user.getUserBackpack2Manager() != null) {
+                    // Basically, take the original passengers and "bump" them to the end of the list
+                    int[] originalPassengers = event.getPacket().getIntegerArrays().read(0);
+                    List<Integer> passengers = new ArrayList<>(user.getUserBackpack2Manager().getEntityManager().getIds());
 
-                event.getPacket().getIntegerArrays().write(0, passengers.stream().mapToInt(Integer::intValue).toArray());
+                    passengers.addAll(Arrays.stream(originalPassengers).boxed().toList());
+
+                    event.getPacket().getIntegerArrays().write(0, passengers.stream().mapToInt(Integer::intValue).toArray());
+                }
             }
         });
     }

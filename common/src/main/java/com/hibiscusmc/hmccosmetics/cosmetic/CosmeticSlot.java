@@ -19,6 +19,7 @@ public class CosmeticSlot {
     public static final CosmeticSlot MAINHAND = register("MAINHAND");
     public static final CosmeticSlot OFFHAND = register("OFFHAND");
     public static final CosmeticSlot BACKPACK = register("BACKPACK");
+    public static final CosmeticSlot BACKPACK2 = register("BACKPACK2");
     public static final CosmeticSlot BALLOON = register("BALLOON");
     public static final CosmeticSlot EMOTE = register("EMOTE");
 

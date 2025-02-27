@@ -9,10 +9,7 @@ import com.hibiscusmc.hmccosmetics.config.Wardrobe;
 import com.hibiscusmc.hmccosmetics.config.WardrobeSettings;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticSlot;
-import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticArmorType;
-import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticBackpackType;
-import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticBalloonType;
-import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticMainhandType;
+import com.hibiscusmc.hmccosmetics.cosmetic.types.*;
 import com.hibiscusmc.hmccosmetics.database.UserData;
 import com.hibiscusmc.hmccosmetics.gui.Menus;
 import com.hibiscusmc.hmccosmetics.user.manager.UserBackpackManager;
@@ -53,6 +50,8 @@ public class CosmeticUser {
     private UserBalloonManager userBalloonManager;
     @Getter
     private UserBackpackManager userBackpackManager;
+    @Getter
+    private UserBackpackManager userBackpack2Manager;
     @Getter
     private final UserEmoteManager userEmoteManager;
 
@@ -204,6 +203,7 @@ public class CosmeticUser {
         }
 
         despawnBackpack();
+        despawnBackpack2();
         despawnBalloon();
     }
 
@@ -241,6 +241,11 @@ public class CosmeticUser {
                 spawnBackpack(backpackType);
                 MessagesUtil.sendDebugMessages("addPlayerCosmetic[spawnBackpack,id=" + cosmetic.getId() + "]");
             }
+            if (cosmetic.getSlot() == CosmeticSlot.BACKPACK2) {
+                CosmeticBackpack2Type backpackType = (CosmeticBackpack2Type) cosmetic;
+                spawnBackpack2(backpackType);
+                MessagesUtil.sendDebugMessages("addPlayerCosmetic[spawnBackpack2,id=" + cosmetic.getId() + "]");
+            }
             if (cosmetic.getSlot() == CosmeticSlot.BALLOON) {
                 CosmeticBalloonType balloonType = (CosmeticBalloonType) cosmetic;
                 spawnBalloon(balloonType);
@@ -268,6 +273,9 @@ public class CosmeticUser {
         // Internal
         if (slot == CosmeticSlot.BACKPACK) {
             despawnBackpack();
+        }
+        if (slot == CosmeticSlot.BACKPACK2) {
+            despawnBackpack2();
         }
         if (slot == CosmeticSlot.BALLOON) {
             despawnBalloon();
@@ -538,7 +546,7 @@ public class CosmeticUser {
 
     public void spawnBackpack(CosmeticBackpackType cosmeticBackpackType) {
         if (this.userBackpackManager != null) return;
-        this.userBackpackManager = new UserBackpackManager(this);
+        this.userBackpackManager = new UserBackpackManager(this, false);
         userBackpackManager.spawnBackpack(cosmeticBackpackType);
     }
 
@@ -550,6 +558,22 @@ public class CosmeticUser {
 
     public boolean isBackpackSpawned() {
         return this.userBackpackManager != null;
+    }
+
+    public void spawnBackpack2(CosmeticBackpack2Type cosmeticBackpackType) {
+        if (this.userBackpack2Manager != null) return;
+        this.userBackpack2Manager = new UserBackpackManager(this, true);
+        userBackpack2Manager.spawnBackpack(cosmeticBackpackType);
+    }
+
+    public void despawnBackpack2() {
+        if (userBackpack2Manager == null) return;
+        userBackpack2Manager.despawnBackpack();
+        userBackpack2Manager = null;
+    }
+
+    public boolean isBackpack2Spawned() {
+        return this.userBackpack2Manager != null;
     }
 
     public boolean isBalloonSpawned() {
@@ -584,6 +608,15 @@ public class CosmeticUser {
         if (!hiddenReason.isEmpty()) return;
         spawnBackpack((CosmeticBackpackType) cosmetic);
         MessagesUtil.sendDebugMessages("Respawned Backpack for " + getEntity().getName());
+    }
+
+    public void respawnBackpack2() {
+        if (!hasCosmeticInSlot(CosmeticSlot.BACKPACK2)) return;
+        final Cosmetic cosmetic = getCosmetic(CosmeticSlot.BACKPACK2);
+        despawnBackpack2();
+        if (!hiddenReason.isEmpty()) return;
+        spawnBackpack2((CosmeticBackpack2Type) cosmetic);
+        MessagesUtil.sendDebugMessages("Respawned Backpack2 for " + getEntity().getName());
     }
 
     public void respawnBalloon() {
@@ -683,6 +716,9 @@ public class CosmeticUser {
         if (hasCosmeticInSlot(CosmeticSlot.BACKPACK)) {
             despawnBackpack();
         }
+        if (hasCosmeticInSlot(CosmeticSlot.BACKPACK2)) {
+            despawnBackpack2();
+        }
         updateCosmetic();
         MessagesUtil.sendDebugMessages("HideCosmetics");
     }
@@ -718,6 +754,12 @@ public class CosmeticUser {
             CosmeticBackpackType cosmeticBackpackType = (CosmeticBackpackType) getCosmetic(CosmeticSlot.BACKPACK);
             ItemStack item = getUserCosmeticItem(cosmeticBackpackType);
             userBackpackManager.setItem(item);
+        }
+        if (hasCosmeticInSlot(CosmeticSlot.BACKPACK2)) {
+            if (!isBackpack2Spawned()) respawnBackpack2();
+            CosmeticBackpackType cosmeticBackpackType = (CosmeticBackpackType) getCosmetic(CosmeticSlot.BACKPACK2);
+            ItemStack item = getUserCosmeticItem(cosmeticBackpackType);
+            userBackpack2Manager.setItem(item);
         }
         updateCosmetic();
         MessagesUtil.sendDebugMessages("ShowCosmetics");

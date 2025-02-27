@@ -55,6 +55,10 @@ public class PlayerConnectionListener implements Listener {
                     CosmeticUser cosmeticUser = CosmeticUsers.getProvider()
                         .createCosmeticUser(uuid)
                         .initialize(userData);
+                    final boolean wasHidden = cosmeticUser.isHidden();
+                    if (!wasHidden) {
+                        cosmeticUser.hideCosmetics(CosmeticUser.HiddenReason.NONE);
+                    }
                     cosmeticUser.startTicking();
 
                     CosmeticUsers.addUser(cosmeticUser);
@@ -66,6 +70,7 @@ public class PlayerConnectionListener implements Listener {
                     // And finally, launch an update for the cosmetics they have.
                     Bukkit.getScheduler().runTaskLater(HMCCosmeticsPlugin.getInstance(), () -> {
                         if (cosmeticUser.getPlayer() == null) return;
+                        if (!wasHidden) cosmeticUser.showCosmetics(CosmeticUser.HiddenReason.NONE);
                         cosmeticUser.updateCosmetic();
                     }, 4);
                 });

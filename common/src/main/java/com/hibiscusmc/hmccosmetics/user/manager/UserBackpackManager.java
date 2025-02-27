@@ -5,9 +5,7 @@ import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticBackpackType;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import com.hibiscusmc.hmccosmetics.util.MessagesUtil;
 import com.hibiscusmc.hmccosmetics.util.packets.HMCCPacketManager;
-import com.ticxo.modelengine.api.ModelEngineAPI;
 import lombok.Getter;
-import me.lojosho.hibiscuscommons.hooks.Hooks;
 import me.lojosho.hibiscuscommons.util.ServerUtils;
 import me.lojosho.hibiscuscommons.util.packets.PacketManager;
 import org.bukkit.Material;
@@ -20,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
 
 public class UserBackpackManager {
 
@@ -33,9 +30,11 @@ public class UserBackpackManager {
     private final CosmeticUser user;
     @Getter
     private UserEntity entityManager;
+    private final boolean isSecond;
 
-    public UserBackpackManager(CosmeticUser user) {
+    public UserBackpackManager(CosmeticUser user, boolean isSecond) {
         this.user = user;
+        this.isSecond = isSecond;
         this.backpackHidden = false;
         this.invisibleArmorStand = ServerUtils.getNextEntityId();
         this.entityManager = new UserEntity(user.getUniqueId());
@@ -61,13 +60,22 @@ public class UserBackpackManager {
 
         Entity entity = user.getEntity();
 
-        int[] passengerIDs = new int[entity.getPassengers().size() + 1];
+        int newSize = entity.getPassengers().size() + 1;
+        final UserBackpackManager anotherManager = isSecond ? user.getUserBackpackManager() : user.getUserBackpack2Manager();
+        if (anotherManager != null) {
+            newSize++;
+        }
+
+        int[] passengerIDs = new int[newSize];
 
         for (int i = 0; i < entity.getPassengers().size(); i++) {
             passengerIDs[i] = entity.getPassengers().get(i).getEntityId();
         }
 
         passengerIDs[passengerIDs.length - 1] = this.getFirstArmorStandId();
+        if (anotherManager != null) {
+            passengerIDs[passengerIDs.length - 2] = anotherManager.getFirstArmorStandId();
+        }
 
         ArrayList<Player> owner = new ArrayList<>();
         if (user.getPlayer() != null) owner.add(user.getPlayer());
@@ -84,8 +92,8 @@ public class UserBackpackManager {
                 if (i == 0) HMCCPacketManager.sendRidingPacket(entity.getEntityId(), particleCloud.get(i), owner);
                 else HMCCPacketManager.sendRidingPacket(particleCloud.get(i - 1), particleCloud.get(i) , owner);
             }
-            HMCCPacketManager.sendRidingPacket(particleCloud.get(particleCloud.size() - 1), user.getUserBackpackManager().getFirstArmorStandId(), owner);
-            if (!user.isHidden()) PacketManager.equipmentSlotUpdate(user.getUserBackpackManager().getFirstArmorStandId(), EquipmentSlot.HEAD, user.getUserCosmeticItem(cosmeticBackpackType, cosmeticBackpackType.getFirstPersonBackpack()), owner);
+            HMCCPacketManager.sendRidingPacket(particleCloud.get(particleCloud.size() - 1), getFirstArmorStandId(), owner);
+            if (!user.isHidden()) PacketManager.equipmentSlotUpdate(getFirstArmorStandId(), EquipmentSlot.HEAD, user.getUserCosmeticItem(cosmeticBackpackType, cosmeticBackpackType.getFirstPersonBackpack()), owner);
         }
         PacketManager.equipmentSlotUpdate(getFirstArmorStandId(), EquipmentSlot.HEAD, user.getUserCosmeticItem(cosmeticBackpackType), outsideViewers);
         HMCCPacketManager.sendRidingPacket(entity.getEntityId(), passengerIDs, outsideViewers);

@@ -155,6 +155,15 @@ public class UserWardrobeManager {
                     HMCCPacketManager.ridingMountPacket(NPC_ID, user.getUserBackpackManager().getFirstArmorStandId(), viewer);
                 }
             }
+            if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK2)) {
+                // Maybe null as backpack maybe despawned before entering
+                if (user.getUserBackpack2Manager() == null) user.respawnBackpack2();
+                if (user.isBackpack2Spawned()) {
+                    user.getUserBackpack2Manager().getEntityManager().teleport(npcLocation.clone().add(0, 2, 0));
+                    PacketManager.equipmentSlotUpdate(user.getUserBackpack2Manager().getFirstArmorStandId(), EquipmentSlot.HEAD, user.getUserCosmeticItem(user.getCosmetic(CosmeticSlot.BACKPACK2)), viewer);
+                    HMCCPacketManager.ridingMountPacket(NPC_ID, user.getUserBackpack2Manager().getFirstArmorStandId(), viewer);
+                }
+            }
 
             if (user.hasCosmeticInSlot(CosmeticSlot.BALLOON)) {
                 if (user.getBalloonManager() == null) user.respawnBalloon();
@@ -260,6 +269,10 @@ public class UserWardrobeManager {
                 //PacketManager.ridingMountPacket(player.getEntityId(), VIEWER.getBackpackEntity().getEntityId(), viewer);
             }
 
+            if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK2)) {
+                user.respawnBackpack2();
+            }
+
             if (user.hasCosmeticInSlot(CosmeticSlot.BALLOON)) {
                 //user.respawnBalloon();
                 //PacketManager.sendLeashPacket(VIEWER.getBalloonEntity().getPufferfishBalloonId(), player.getEntityId(), viewer);
@@ -328,6 +341,13 @@ public class UserWardrobeManager {
                     HMCCPacketManager.ridingMountPacket(NPC_ID, user.getUserBackpackManager().getFirstArmorStandId(), viewer);
                     user.getUserBackpackManager().getEntityManager().setRotation(nextyaw);
                     HMCCPacketManager.sendEntityDestroyPacket(user.getUserBackpackManager().getFirstArmorStandId(), outsideViewers);
+                }
+
+                if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK2) && user.getUserBackpack2Manager() != null) {
+                    HMCCPacketManager.sendTeleportPacket(user.getUserBackpack2Manager().getFirstArmorStandId(), location, false, viewer);
+                    HMCCPacketManager.ridingMountPacket(NPC_ID, user.getUserBackpack2Manager().getFirstArmorStandId(), viewer);
+                    user.getUserBackpack2Manager().getEntityManager().setRotation(nextyaw);
+                    HMCCPacketManager.sendEntityDestroyPacket(user.getUserBackpack2Manager().getFirstArmorStandId(), outsideViewers);
                 }
 
                 if (user.hasCosmeticInSlot(CosmeticSlot.BALLOON) && user.isBalloonSpawned()) {
