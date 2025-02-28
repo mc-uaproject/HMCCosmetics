@@ -52,16 +52,20 @@ public class UserBackpackManager {
     }
 
     private void spawn(CosmeticBackpackType cosmeticBackpackType) {
+        final UserBackpackManager anotherManager = isSecond ? user.getUserBackpackManager() : user.getUserBackpack2Manager();
+
         getEntityManager().setIds(List.of(invisibleArmorStand));
         getEntityManager().teleport(user.getEntity().getLocation());
         List<Player> outsideViewers = getEntityManager().getViewers();
+        if (anotherManager != null) {
+            outsideViewers.addAll(anotherManager.getEntityManager().getViewers());
+        }
         HMCCPacketManager.sendEntitySpawnPacket(user.getEntity().getLocation(), getFirstArmorStandId(), EntityType.ARMOR_STAND, UUID.randomUUID(), getEntityManager().getViewers());
         HMCCPacketManager.sendArmorstandMetadata(getFirstArmorStandId(), outsideViewers);
 
         Entity entity = user.getEntity();
 
         int newSize = entity.getPassengers().size() + 1;
-        final UserBackpackManager anotherManager = isSecond ? user.getUserBackpackManager() : user.getUserBackpack2Manager();
         if (anotherManager != null) {
             newSize++;
         }
