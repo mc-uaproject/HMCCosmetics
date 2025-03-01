@@ -57,9 +57,6 @@ public class UserBackpackManager {
         getEntityManager().setIds(List.of(invisibleArmorStand));
         getEntityManager().teleport(user.getEntity().getLocation());
         List<Player> outsideViewers = getEntityManager().getViewers();
-        if (anotherManager != null) {
-            outsideViewers.addAll(anotherManager.getEntityManager().getViewers());
-        }
         HMCCPacketManager.sendEntitySpawnPacket(user.getEntity().getLocation(), getFirstArmorStandId(), EntityType.ARMOR_STAND, UUID.randomUUID(), getEntityManager().getViewers());
         HMCCPacketManager.sendArmorstandMetadata(getFirstArmorStandId(), outsideViewers);
 

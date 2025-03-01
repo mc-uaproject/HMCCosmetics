@@ -3,6 +3,7 @@ package com.hibiscusmc.hmccosmetics.cosmetic.types;
 import com.hibiscusmc.hmccosmetics.config.Settings;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
+import com.hibiscusmc.hmccosmetics.user.manager.UserBackpackManager;
 import com.hibiscusmc.hmccosmetics.util.packets.HMCCPacketManager;
 import lombok.Getter;
 import me.lojosho.hibiscuscommons.util.packets.PacketManager;
@@ -56,9 +57,16 @@ public class CosmeticBackpack2Type extends CosmeticBackpackType {
         HMCCPacketManager.sendEntitySpawnPacket(user.getEntity().getLocation(), user.getUserBackpack2Manager().getFirstArmorStandId(), EntityType.ARMOR_STAND, UUID.randomUUID(), outsideViewers);
         HMCCPacketManager.sendArmorstandMetadata(user.getUserBackpack2Manager().getFirstArmorStandId(), outsideViewers);
         PacketManager.equipmentSlotUpdate(user.getUserBackpack2Manager().getFirstArmorStandId(), EquipmentSlot.HEAD, user.getUserCosmeticItem(this, getItem()), outsideViewers);
+        final UserBackpackManager anotherManager = user.getUserBackpackManager();
+        final int[] ridingIDs;
+        if (anotherManager != null) {
+            ridingIDs = new int[]{user.getUserBackpack2Manager().getFirstArmorStandId(), anotherManager.getFirstArmorStandId()};
+        } else {
+            ridingIDs = new int[]{user.getUserBackpack2Manager().getFirstArmorStandId()};
+        }
         // If true, it will send the riding packet to all players. If false, it will send the riding packet only to new players
-        if (Settings.isBackpackForceRidingEnabled()) HMCCPacketManager.sendRidingPacket(entity.getEntityId(), user.getUserBackpack2Manager().getFirstArmorStandId(), user.getUserBackpack2Manager().getEntityManager().getViewers());
-        else HMCCPacketManager.sendRidingPacket(entity.getEntityId(), user.getUserBackpack2Manager().getFirstArmorStandId(), outsideViewers);
+        if (Settings.isBackpackForceRidingEnabled()) HMCCPacketManager.sendRidingPacket(entity.getEntityId(), ridingIDs, user.getUserBackpack2Manager().getEntityManager().getViewers());
+        else HMCCPacketManager.sendRidingPacket(entity.getEntityId(), ridingIDs, outsideViewers);
 
         if (!user.isInWardrobe() && isFirstPersonCompadible() && user.getPlayer() != null) {
             List<Player> owner = List.of(user.getPlayer());
