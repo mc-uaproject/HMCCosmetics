@@ -301,11 +301,10 @@ public class CosmeticUser implements CosmeticHolder {
 
     @Override
     public void updateCosmetic(@NotNull CosmeticSlot slot) {
-        if (getCosmetic(slot) == null) {
-            return;
+        Cosmetic cosmetic = playerCosmetics.get(slot);
+        if (cosmetic != null) {
+            cosmetic.update(this);
         }
-        getCosmetic(slot).update(this);
-        return;
     }
 
     public void updateCosmetic(Cosmetic cosmetic) {
