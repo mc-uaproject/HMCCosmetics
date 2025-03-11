@@ -194,7 +194,7 @@ public class CosmeticUser implements CosmeticHolder {
 
         this.updateCosmetic();
 
-        if(isHidden() && !getUserEmoteManager().isPlayingEmote() && !getCosmetics().isEmpty()) {
+        if(isHidden() && !getUserEmoteManager().isPlayingEmote() && !playerCosmetics.isEmpty()) {
             MessagesUtil.sendActionBar(getPlayer(), "hidden-cosmetics");
         }
     }
@@ -632,7 +632,7 @@ public class CosmeticUser implements CosmeticHolder {
     public List<CosmeticSlot> getDyeableSlots() {
         ArrayList<CosmeticSlot> dyableSlots = new ArrayList<>();
 
-        for (Cosmetic cosmetic : getCosmetics()) {
+        for (Cosmetic cosmetic : playerCosmetics.values()) {
             if (cosmetic.isDyable()) dyableSlots.add(cosmetic.getSlot());
         }
 
