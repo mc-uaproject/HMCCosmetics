@@ -315,7 +315,7 @@ public class CosmeticUser implements CosmeticHolder {
         MessagesUtil.sendDebugMessages("updateCosmetic (All) - start");
         HashMap<EquipmentSlot, ItemStack> items = new HashMap<>();
 
-        for (Cosmetic cosmetic : getCosmetics()) {
+        for (Cosmetic cosmetic : playerCosmetics.values()) {
             if (cosmetic instanceof CosmeticArmorType armorType) {
                 if (getUserEmoteManager().isPlayingEmote() || isInWardrobe()) return;
                 if (!(getEntity() instanceof HumanEntity humanEntity)) return;
@@ -327,7 +327,7 @@ public class CosmeticUser implements CosmeticHolder {
 
                 items.put(HMCCInventoryUtils.getEquipmentSlot(armorType.getSlot()), armorType.getItem(this));
             } else {
-                updateCosmetic(cosmetic.getSlot());
+                cosmetic.update(this);
             }
         }
         if (items.isEmpty() || getEntity() == null) return;
