@@ -194,7 +194,7 @@ public class CosmeticUser implements CosmeticHolder {
 
         this.updateCosmetic();
 
-        if(isHidden() && !getUserEmoteManager().isPlayingEmote() && !getCosmetics().isEmpty()) {
+        if(isHidden() && !getUserEmoteManager().isPlayingEmote() && !playerCosmetics.isEmpty()) {
             MessagesUtil.sendActionBar(getPlayer(), "hidden-cosmetics");
         }
     }
@@ -301,11 +301,10 @@ public class CosmeticUser implements CosmeticHolder {
 
     @Override
     public void updateCosmetic(@NotNull CosmeticSlot slot) {
-        if (getCosmetic(slot) == null) {
-            return;
+        Cosmetic cosmetic = playerCosmetics.get(slot);
+        if (cosmetic != null) {
+            cosmetic.update(this);
         }
-        getCosmetic(slot).update(this);
-        return;
     }
 
     public void updateCosmetic(Cosmetic cosmetic) {
@@ -316,7 +315,7 @@ public class CosmeticUser implements CosmeticHolder {
         MessagesUtil.sendDebugMessages("updateCosmetic (All) - start");
         HashMap<EquipmentSlot, ItemStack> items = new HashMap<>();
 
-        for (Cosmetic cosmetic : getCosmetics()) {
+        for (Cosmetic cosmetic : playerCosmetics.values()) {
             if (cosmetic instanceof CosmeticArmorType armorType) {
                 if (getUserEmoteManager().isPlayingEmote() || isInWardrobe()) return;
                 if (!(getEntity() instanceof HumanEntity humanEntity)) return;
@@ -328,7 +327,7 @@ public class CosmeticUser implements CosmeticHolder {
 
                 items.put(HMCCInventoryUtils.getEquipmentSlot(armorType.getSlot()), armorType.getItem(this));
             } else {
-                updateCosmetic(cosmetic.getSlot());
+                cosmetic.update(this);
             }
         }
         if (items.isEmpty() || getEntity() == null) return;
@@ -633,7 +632,7 @@ public class CosmeticUser implements CosmeticHolder {
     public List<CosmeticSlot> getDyeableSlots() {
         ArrayList<CosmeticSlot> dyableSlots = new ArrayList<>();
 
-        for (Cosmetic cosmetic : getCosmetics()) {
+        for (Cosmetic cosmetic : playerCosmetics.values()) {
             if (cosmetic.isDyable()) dyableSlots.add(cosmetic.getSlot());
         }
 
