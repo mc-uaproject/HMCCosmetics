@@ -24,4 +24,8 @@ public class Types {
     public static void addType(Type type) {
         types.put(type.getId().toUpperCase(), type);
     }
+
+    public static TypeEmpty getDefaultType() {
+        return TYPE_EMPTY;
+    }
 }

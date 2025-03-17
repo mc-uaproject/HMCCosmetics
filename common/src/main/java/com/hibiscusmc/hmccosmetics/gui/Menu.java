@@ -109,8 +109,7 @@ public class Menu {
 
             int priority = config.node("priority").getInt(1);
 
-            Type type = null;
-
+            Type type = Types.getDefaultType();
             if (!config.node("type").virtual()) {
                 String typeId = config.node("type").getString("");
                 if (Types.isType(typeId)) type = Types.getType(typeId);
@@ -124,7 +123,7 @@ public class Menu {
                     menuItems.sort(priorityCompare);
                     items.put(slot, menuItems);
                 } else {
-                    items.put(slot, new ArrayList<>(Arrays.asList(menuItem)));
+                    items.put(slot, new ArrayList<>(List.of(menuItem)));
                 }
             }
         }
