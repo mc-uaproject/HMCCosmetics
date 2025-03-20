@@ -96,7 +96,7 @@ public final class HMCCosmeticsAPI {
      *              customization
      */
     public static void equipCosmetic(@NotNull CosmeticUser user, @NotNull Cosmetic cosmetic, @Nullable Color color) {
-        user.addPlayerCosmetic(cosmetic, color);
+        user.addCosmetic(cosmetic, color);
     }
 
     /**
