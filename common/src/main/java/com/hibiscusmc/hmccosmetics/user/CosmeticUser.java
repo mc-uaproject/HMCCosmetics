@@ -254,7 +254,7 @@ public class CosmeticUser implements CosmeticHolder {
     /**
      * @deprecated Use {@link #addCosmetic(Cosmetic)} instead
      */
-    @Deprecated
+    @Deprecated(since = "2.7.7", forRemoval = true)
     public void addPlayerCosmetic(@NotNull Cosmetic cosmetic) {
         addCosmetic(cosmetic);
     }
@@ -262,7 +262,7 @@ public class CosmeticUser implements CosmeticHolder {
     /**
      * @deprecated Use {@link #addCosmetic(Cosmetic, Color)} instead
      */
-    @Deprecated
+    @Deprecated(since = "2.7.7", forRemoval = true)
     public void addPlayerCosmetic(@NotNull Cosmetic cosmetic, @Nullable Color color) {
         addCosmetic(cosmetic, color);
     }
