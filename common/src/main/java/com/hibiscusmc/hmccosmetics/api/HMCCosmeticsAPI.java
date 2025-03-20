@@ -203,7 +203,7 @@ public final class HMCCosmeticsAPI {
     public static @Nullable String getNMSVersion() {
         MinecraftVersion version = NMSHandlers.getVersion();
         if (version == null) return null;
-        return version.toVersionString();
+        return version.toString();
     }
 
     /**
