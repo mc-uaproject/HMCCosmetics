@@ -24,7 +24,7 @@ public class UserBackpackManager {
     @Getter
     private boolean backpackHidden;
     @Getter
-    private int invisibleArmorStand;
+    private final int invisibleArmorStand;
     private ArrayList<Integer> particleCloud = new ArrayList<>();
     @Getter
     private final CosmeticUser user;

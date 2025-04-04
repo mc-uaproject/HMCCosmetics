@@ -729,7 +729,6 @@ public class PlayerGameListener implements Listener {
         for (final EquipmentSlot slot : EquipmentSlot.values()) {
             final Set<Material> armorItems = ARMOR_ITEMS.get(slot);
             if (armorItems == null) continue;
-            if (material == null) continue;
             if (armorItems.contains(material)) return slot;
         }
         return null;

@@ -4,6 +4,7 @@ import com.hibiscusmc.hmccosmetics.config.Settings;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import com.hibiscusmc.hmccosmetics.user.manager.UserBackpackManager;
+import com.hibiscusmc.hmccosmetics.user.manager.UserEntity;
 import com.hibiscusmc.hmccosmetics.util.packets.HMCCPacketManager;
 import lombok.Getter;
 import me.lojosho.hibiscuscommons.util.packets.PacketManager;
@@ -38,10 +39,11 @@ public class CosmeticBackpack2Type extends CosmeticBackpackType {
 
     @Override
     public void update(@NotNull CosmeticUser user) {
-        Entity entity = Bukkit.getEntity(user.getUniqueId());
+        Entity entity = user.getEntity();
         if (entity == null) return;
 
-        Location loc = entity.getLocation().clone().add(0, 2, 0);
+        Location entityLocation = entity.getLocation();
+        Location loc = entityLocation.clone().add(0, 2, 0);
 
         if (user.isInWardrobe() || !user.isBackpack2Spawned()) return;
         if (user.isHidden()) {
@@ -49,29 +51,34 @@ public class CosmeticBackpack2Type extends CosmeticBackpackType {
             user.despawnBackpack2();
             return;
         }
-        List<Player> outsideViewers = user.getUserBackpack2Manager().getEntityManager().refreshViewers(loc);
 
-        user.getUserBackpack2Manager().getEntityManager().teleport(loc);
-        user.getUserBackpack2Manager().getEntityManager().setRotation((int) loc.getYaw(), isFirstPersonCompadible());
+        UserBackpackManager backpackManager = user.getUserBackpack2Manager();
+        UserEntity entityManager = backpackManager.getEntityManager();
+        int firstArmorStandId = backpackManager.getFirstArmorStandId();
 
-        HMCCPacketManager.sendEntitySpawnPacket(user.getEntity().getLocation(), user.getUserBackpack2Manager().getFirstArmorStandId(), EntityType.ARMOR_STAND, UUID.randomUUID(), outsideViewers);
-        HMCCPacketManager.sendArmorstandMetadata(user.getUserBackpack2Manager().getFirstArmorStandId(), outsideViewers);
-        PacketManager.equipmentSlotUpdate(user.getUserBackpack2Manager().getFirstArmorStandId(), EquipmentSlot.HEAD, user.getUserCosmeticItem(this, getItem()), outsideViewers);
+        List<Player> outsideViewers = entityManager.refreshViewers(loc);
+
+        entityManager.teleport(loc);
+        entityManager.setRotation((int) loc.getYaw(), isFirstPersonCompadible());
+
+        HMCCPacketManager.sendEntitySpawnPacket(entityLocation, firstArmorStandId, EntityType.ARMOR_STAND, UUID.randomUUID(), outsideViewers);
+        HMCCPacketManager.sendArmorstandMetadata(firstArmorStandId, outsideViewers);
+        PacketManager.equipmentSlotUpdate(firstArmorStandId, EquipmentSlot.HEAD, user.getUserCosmeticItem(this, getItem()), outsideViewers);
         final UserBackpackManager anotherManager = user.getUserBackpackManager();
         final int[] ridingIDs;
         if (anotherManager != null) {
-            ridingIDs = new int[]{user.getUserBackpack2Manager().getFirstArmorStandId(), anotherManager.getFirstArmorStandId()};
+            ridingIDs = new int[]{firstArmorStandId, anotherManager.getFirstArmorStandId()};
         } else {
-            ridingIDs = new int[]{user.getUserBackpack2Manager().getFirstArmorStandId()};
+            ridingIDs = new int[]{firstArmorStandId};
         }
         // If true, it will send the riding packet to all players. If false, it will send the riding packet only to new players
-        if (Settings.isBackpackForceRidingEnabled()) HMCCPacketManager.sendRidingPacket(entity.getEntityId(), ridingIDs, user.getUserBackpack2Manager().getEntityManager().getViewers());
+        if (Settings.isBackpackForceRidingEnabled()) HMCCPacketManager.sendRidingPacket(entity.getEntityId(), ridingIDs, entityManager.getViewers());
         else HMCCPacketManager.sendRidingPacket(entity.getEntityId(), ridingIDs, outsideViewers);
 
         if (!user.isInWardrobe() && isFirstPersonCompadible() && user.getPlayer() != null) {
             List<Player> owner = List.of(user.getPlayer());
 
-            ArrayList<Integer> particleCloud = user.getUserBackpack2Manager().getAreaEffectEntityId();
+            ArrayList<Integer> particleCloud = backpackManager.getAreaEffectEntityId();
             for (int i = 0; i < particleCloud.size(); i++) {
                 if (i == 0) {
                     HMCCPacketManager.sendRidingPacket(entity.getEntityId(), particleCloud.get(i), owner);
@@ -79,16 +86,16 @@ public class CosmeticBackpack2Type extends CosmeticBackpackType {
                     HMCCPacketManager.sendRidingPacket(particleCloud.get(i - 1), particleCloud.get(i) , owner);
                 }
             }
-            HMCCPacketManager.sendRidingPacket(particleCloud.get(particleCloud.size() - 1), user.getUserBackpack2Manager().getFirstArmorStandId(), owner);
+            HMCCPacketManager.sendRidingPacket(particleCloud.get(particleCloud.size() - 1), firstArmorStandId, owner);
             if (!user.isHidden()) {
                 //if (loc.getPitch() < -70) NMSHandlers.getHandler().equipmentSlotUpdate(user.getUserBackpack2Manager().getFirstArmorStandId(), EquipmentSlot.HEAD, new ItemStack(Material.AIR), owner);
                 //else NMSHandlers.getHandler().equipmentSlotUpdate(user.getUserBackpack2Manager().getFirstArmorStandId(), EquipmentSlot.HEAD, firstPersonBackpack, owner);
-                PacketManager.equipmentSlotUpdate(user.getUserBackpack2Manager().getFirstArmorStandId(), EquipmentSlot.HEAD, user.getUserCosmeticItem(this, firstPersonBackpack), owner);
+                PacketManager.equipmentSlotUpdate(firstArmorStandId, EquipmentSlot.HEAD, user.getUserCosmeticItem(this, firstPersonBackpack), owner);
             }
             //MessagesUtil.sendDebugMessages("First Person Backpack Update[owner=" + user.getUniqueId() + ",player_location=" + loc + "]!", Level.INFO);
         }
 
-        user.getUserBackpack2Manager().showBackpack();
+        backpackManager.showBackpack();
     }
 
     public boolean isFirstPersonCompadible() {
