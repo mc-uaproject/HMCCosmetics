@@ -10,9 +10,7 @@ import com.hibiscusmc.hmccosmetics.config.WardrobeSettings;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticSlot;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetics;
-import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticEmoteType;
 import com.hibiscusmc.hmccosmetics.database.Database;
-import com.hibiscusmc.hmccosmetics.emotes.EmoteManager;
 import com.hibiscusmc.hmccosmetics.gui.Menu;
 import com.hibiscusmc.hmccosmetics.gui.Menus;
 import com.hibiscusmc.hmccosmetics.gui.special.DyeMenu;
@@ -23,7 +21,6 @@ import com.hibiscusmc.hmccosmetics.util.HMCCServerUtils;
 import me.lojosho.hibiscuscommons.hooks.Hooks;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
@@ -464,59 +461,6 @@ public class CosmeticCommand implements CommandExecutor {
                     if (!silent) MessagesUtil.sendMessage(sender, "debug-enabled");
                 }
             }
-            case ("emote") -> {
-                if (!sender.hasPermission("hmccosmetics.cmd.emote")) {
-                    if (!silent) MessagesUtil.sendMessage(sender, "no-permission");
-                    return true;
-                }
-                if (sender.hasPermission("hmccosmetics.cmd.emote.other")) {
-                    if (args.length >= 2) player = Bukkit.getPlayer(args[1]);
-                }
-                if (player == null) {
-                    if (!silent) MessagesUtil.sendMessage(sender, "invalid-player");
-                    return true;
-                }
-                CosmeticUser user = CosmeticUsers.getUser(player);
-                if (!user.hasCosmeticInSlot(CosmeticSlot.EMOTE)) {
-                    if (!silent) MessagesUtil.sendMessage(sender, "emote-none");
-                    return true;
-                }
-
-                CosmeticEmoteType cosmeticEmoteType = (CosmeticEmoteType) user.getCosmetic(CosmeticSlot.EMOTE);
-                cosmeticEmoteType.run(user);
-                return true;
-            }
-
-            case ("playemote") -> {
-                // /cosmetic playEmote <emoteId> [playerName]
-                if (!sender.hasPermission("hmccosmetics.cmd.playemote")) {
-                    if (!silent) MessagesUtil.sendMessage(sender, "no-permission");
-                    return true;
-                }
-
-                if (args.length < 2) {
-                    if (!silent) MessagesUtil.sendMessage(player, "not-enough-args");
-                    return true;
-                }
-
-                if (!EmoteManager.has(args[1])) {
-                    MessagesUtil.sendDebugMessages("Did not contain " + args[1]);
-                    if (!silent) MessagesUtil.sendMessage(sender, "emote-invalid");
-                    return true;
-                }
-
-                if (sender.hasPermission("hmccosmetics.cmd.playemote.other")) {
-                    if (args.length >= 3) player = Bukkit.getPlayer(args[2]);
-                }
-                if (player == null) {
-                    if (!silent) MessagesUtil.sendMessage(sender, "invalid-player");
-                    return true;
-                }
-                CosmeticUser user = CosmeticUsers.getUser(player);
-                user.getUserEmoteManager().playEmote(args[1]);
-                return true;
-            }
-
             case "disableall" -> {
                 if (!sender.hasPermission("hmccosmetics.cmd.disableall")) {
                     if (!silent) MessagesUtil.sendMessage(sender, "no-permission");

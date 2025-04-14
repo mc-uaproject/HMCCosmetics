@@ -9,7 +9,6 @@ import com.hibiscusmc.hmccosmetics.database.Database;
 import com.hibiscusmc.hmccosmetics.gui.Menus;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUsers;
-import com.hibiscusmc.hmccosmetics.user.manager.UserEmoteManager;
 import com.hibiscusmc.hmccosmetics.util.MessagesUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -94,10 +93,6 @@ public class PlayerConnectionListener implements Listener {
         if (user.isInWardrobe()) {
             user.leaveWardrobe(true);
             user.getPlayer().setInvisible(false);
-        }
-        if (user.getUserEmoteManager().isPlayingEmote()) {
-            user.getUserEmoteManager().stopEmote(UserEmoteManager.StopEmoteReason.CONNECTION);
-            event.getPlayer().setInvisible(false);
         }
         Menus.removeCooldown(event.getPlayer().getUniqueId()); // Removes any menu cooldowns a player might have
         Database.save(user);

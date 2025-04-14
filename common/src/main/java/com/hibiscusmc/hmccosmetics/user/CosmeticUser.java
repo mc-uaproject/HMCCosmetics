@@ -18,7 +18,6 @@ import com.hibiscusmc.hmccosmetics.database.UserData;
 import com.hibiscusmc.hmccosmetics.gui.Menus;
 import com.hibiscusmc.hmccosmetics.user.manager.UserBackpackManager;
 import com.hibiscusmc.hmccosmetics.user.manager.UserBalloonManager;
-import com.hibiscusmc.hmccosmetics.user.manager.UserEmoteManager;
 import com.hibiscusmc.hmccosmetics.user.manager.UserWardrobeManager;
 import com.hibiscusmc.hmccosmetics.util.HMCCInventoryUtils;
 import com.hibiscusmc.hmccosmetics.util.MessagesUtil;
@@ -54,8 +53,6 @@ public class CosmeticUser implements CosmeticHolder {
     private UserBalloonManager userBalloonManager;
     @Getter
     private UserBackpackManager userBackpackManager;
-    @Getter
-    private final UserEmoteManager userEmoteManager;
 
     // Cosmetic Settings/Toggles
     private final ArrayList<HiddenReason> hiddenReason = new ArrayList<>();
@@ -74,7 +71,6 @@ public class CosmeticUser implements CosmeticHolder {
 
     public CosmeticUser(@NotNull UUID uuid) {
         this.uniqueId = uuid;
-        this.userEmoteManager = new UserEmoteManager(this);
     }
 
     /**
@@ -194,7 +190,7 @@ public class CosmeticUser implements CosmeticHolder {
 
         this.updateCosmetic();
 
-        if(isHidden() && !getUserEmoteManager().isPlayingEmote() && !playerCosmetics.isEmpty()) {
+        if(isHidden() && !playerCosmetics.isEmpty()) {
             MessagesUtil.sendActionBar(getPlayer(), "hidden-cosmetics");
         }
     }
@@ -282,9 +278,6 @@ public class CosmeticUser implements CosmeticHolder {
         if (slot == CosmeticSlot.BALLOON) {
             despawnBalloon();
         }
-        if (slot == CosmeticSlot.EMOTE) {
-            if (getUserEmoteManager().isPlayingEmote()) getUserEmoteManager().stopEmote(UserEmoteManager.StopEmoteReason.UNEQUIP);
-        }
         colors.remove(slot);
         playerCosmetics.remove(slot);
         removeArmor(slot);
@@ -317,7 +310,7 @@ public class CosmeticUser implements CosmeticHolder {
 
         for (Cosmetic cosmetic : playerCosmetics.values()) {
             if (cosmetic instanceof CosmeticArmorType armorType) {
-                if (getUserEmoteManager().isPlayingEmote() || isInWardrobe()) return;
+                if (isInWardrobe()) return;
                 if (!(getEntity() instanceof HumanEntity humanEntity)) return;
 
                 boolean requireEmpty = Settings.getSlotOption(armorType.getEquipSlot()).isRequireEmpty();
