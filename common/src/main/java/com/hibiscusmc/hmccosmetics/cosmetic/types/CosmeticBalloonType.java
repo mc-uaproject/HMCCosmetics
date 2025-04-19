@@ -4,6 +4,7 @@ import com.hibiscusmc.hmccosmetics.config.Settings;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import com.hibiscusmc.hmccosmetics.user.manager.UserBalloonManager;
+import com.hibiscusmc.hmccosmetics.util.MessagesUtil;
 import com.hibiscusmc.hmccosmetics.util.packets.HMCCPacketManager;
 import lombok.Getter;
 import me.lojosho.shaded.configurate.ConfigurationNode;
@@ -81,6 +82,11 @@ public class CosmeticBalloonType extends Cosmetic {
         Vector velocity = newLocation.toVector().subtract(currentLocation.toVector());
         userBalloonManager.setLocation(newLocation);
         userBalloonManager.setVelocity(velocity.multiply(1.1));
+
+        MessagesUtil.sendDebugMessages("Balloon Cosmetic Update for " + user.getEntity().getName());
+        MessagesUtil.sendDebugMessages("Ballon previous location is " + currentLocation);
+        MessagesUtil.sendDebugMessages("Balloon location set to " + newLocation);
+        MessagesUtil.sendDebugMessages("Balloon velocity set to " + velocity);
 
         HMCCPacketManager.sendTeleportPacket(userBalloonManager.getPufferfishBalloonId(), newLocation, false, viewer);
         HMCCPacketManager.sendLeashPacket(userBalloonManager.getPufferfishBalloonId(), entity.getEntityId(), viewer);
