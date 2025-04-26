@@ -154,8 +154,7 @@ public class Menu {
         Gui gui = Gui.gui()
                 .title(component)
                 .type(GuiType.CHEST)
-                .rows(this.rows)
-                .inventory((title, owner, rows) -> Bukkit.createInventory(owner, rows, title))
+                .inventory((title, owner, type) -> Bukkit.createInventory(owner, rows * 9, title))
                 .create();
 
         gui.setDefaultClickAction(event -> event.setCancelled(true));
@@ -248,7 +247,7 @@ public class Menu {
                 }
             }
             MessagesUtil.sendDebugMessages("Updated menu with title " + title);
-            gui.updateTitle(StringUtils.parseStringToString(Hooks.processPlaceholders(viewer, title.toString())));
+            gui.updateTitle(AdventureUtils.MINI_MESSAGE.deserialize(Hooks.processPlaceholders(viewer, title.toString())));
         } else {
             for (int i = 0; i < gui.getInventory().getSize(); i++) {
                 if (items.containsKey(i)) {
