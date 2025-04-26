@@ -57,7 +57,7 @@ public class Menu {
     private final boolean shading;
 
     public Menu(String id, @NotNull ConfigurationNode config) {
-        this.id = id;
+        this.id = config.node("id").getString(id);
         this.config = config;
 
         title = config.node("title").getString("chest");
