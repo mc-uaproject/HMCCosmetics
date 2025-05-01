@@ -10,7 +10,6 @@ import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticHolder;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import me.lojosho.hibiscuscommons.hooks.Hooks;
 import me.lojosho.hibiscuscommons.util.AdventureUtils;
-import me.lojosho.hibiscuscommons.util.ColorBuilder;
 import me.lojosho.hibiscuscommons.util.StringUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -26,7 +25,7 @@ public class DyeMenu {
             return;
         }
         ItemStack originalItem = cosmetic.getItem();
-        if (originalItem == null || !cosmetic.isDyable()) return;
+        if (originalItem == null || !cosmetic.isDyeable()) return;
 
         Gui gui = HMCColorApi.createColorMenu(viewer);
         gui.updateTitle(AdventureUtils.MINI_MESSAGE.deserialize(Hooks.processPlaceholders(viewer, StringUtils.parseStringToString(Settings.getDyeMenuName()))));

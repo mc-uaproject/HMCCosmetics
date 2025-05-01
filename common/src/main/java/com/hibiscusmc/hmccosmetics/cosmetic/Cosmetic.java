@@ -26,7 +26,7 @@ public abstract class Cosmetic {
     @Getter @Setter
     private CosmeticSlot slot;
     @Getter @Setter
-    private boolean dyable;
+    private boolean dyeable;
 
     protected Cosmetic(String id, @NotNull ConfigurationNode config) {
         this.id = id;
@@ -45,9 +45,9 @@ public abstract class Cosmetic {
         MessagesUtil.sendDebugMessages("Slot: " + config.node("slot").getString());
 
         setSlot(CosmeticSlot.valueOf(config.node("slot").getString()));
-        setDyable(config.node("dyeable").getBoolean(false));
+        setDyeable(config.node("dyeable").getBoolean(false));
 
-        MessagesUtil.sendDebugMessages("Dyeable " + dyable);
+        MessagesUtil.sendDebugMessages("Dyeable " + dyeable);
         Cosmetics.addCosmetic(this);
     }
 

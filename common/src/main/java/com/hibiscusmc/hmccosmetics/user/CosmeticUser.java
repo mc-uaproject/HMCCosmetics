@@ -623,13 +623,13 @@ public class CosmeticUser implements CosmeticHolder {
     }
 
     public List<CosmeticSlot> getDyeableSlots() {
-        ArrayList<CosmeticSlot> dyableSlots = new ArrayList<>();
+        ArrayList<CosmeticSlot> dyeableSlots = new ArrayList<>();
 
         for (Cosmetic cosmetic : playerCosmetics.values()) {
-            if (cosmetic.isDyable()) dyableSlots.add(cosmetic.getSlot());
+            if (cosmetic.isDyeable()) dyeableSlots.add(cosmetic.getSlot());
         }
 
-        return dyableSlots;
+        return dyeableSlots;
     }
 
     @Override
