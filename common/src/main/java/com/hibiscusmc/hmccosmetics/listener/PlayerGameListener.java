@@ -23,6 +23,8 @@ import com.hibiscusmc.hmccosmetics.util.HMCCServerUtils;
 import com.hibiscusmc.hmccosmetics.util.MessagesUtil;
 import com.hibiscusmc.hmccosmetics.util.packets.HMCCPacketManager;
 import me.lojosho.hibiscuscommons.api.events.*;
+import me.lojosho.hibiscuscommons.nms.MinecraftVersion;
+import me.lojosho.hibiscuscommons.nms.NMSHandlers;
 import me.lojosho.hibiscuscommons.util.packets.PacketManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -430,7 +432,12 @@ public class PlayerGameListener implements Listener {
             public void onPacketReceiving(PacketEvent event) {
                 Player player = event.getPlayer();
                 int invTypeClicked = event.getPacket().getIntegers().read(0);
-                int slotClicked = event.getPacket().getIntegers().read(2);
+                int slotClicked = -999;
+                if (NMSHandlers.getVersion().isHigherOrEqual(MinecraftVersion.v1_21_4)) {
+                    slotClicked = event.getPacket().getShorts().read(0);
+                } else {
+                    slotClicked = event.getPacket().getIntegers().read(2);
+                }
 
                 // Must be a player inventory.
                 if (invTypeClicked != 0) return;
