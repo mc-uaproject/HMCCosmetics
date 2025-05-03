@@ -433,7 +433,7 @@ public class PlayerGameListener implements Listener {
                 Player player = event.getPlayer();
                 int invTypeClicked = event.getPacket().getIntegers().read(0);
                 int slotClicked = -999;
-                if (NMSHandlers.getVersion().isHigherOrEqual(MinecraftVersion.v1_21_4)) {
+                if (NMSHandlers.getVersion().isHigherOrEqual(MinecraftVersion.v1_21_5)) {
                     slotClicked = event.getPacket().getShorts().read(0);
                 } else {
                     slotClicked = event.getPacket().getIntegers().read(2);
