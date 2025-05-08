@@ -20,9 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -139,7 +136,7 @@ public class TypeCosmetic extends Type {
 
     @Override
     public ItemStack setItem(@NotNull Player viewer, @NotNull CosmeticHolder cosmeticHolder, @NotNull ConfigurationNode config, @NotNull ItemStack itemStack, int slot) {
-        if (itemStack.hasItemMeta()) itemStack.setItemMeta(processLoreLines(viewer, itemStack.getItemMeta()));
+        if (itemStack.hasItemMeta()) itemStack.setItemMeta(processItemMeta(viewer, itemStack.getItemMeta()));
         else MessagesUtil.sendDebugMessages("ItemStack has no ItemMeta?");
 
         if (config.node("cosmetic").virtual()) {
@@ -164,7 +161,7 @@ public class TypeCosmetic extends Type {
             } catch (SerializationException e) {
                 throw new RuntimeException(e);
             }
-            if (itemStack.hasItemMeta()) itemStack.setItemMeta(processLoreLines(viewer, itemStack.getItemMeta()));
+            if (itemStack.hasItemMeta()) itemStack.setItemMeta(processItemMeta(viewer, itemStack.getItemMeta()));
             else MessagesUtil.sendDebugMessages("ItemStack has no ItemMeta in equipped item?");
             return itemStack;
         }
@@ -182,35 +179,10 @@ public class TypeCosmetic extends Type {
             } catch (SerializationException e) {
                 throw new RuntimeException(e);
             }
-            if (itemStack.hasItemMeta()) itemStack.setItemMeta(processLoreLines(viewer, itemStack.getItemMeta()));
+            if (itemStack.hasItemMeta()) itemStack.setItemMeta(processItemMeta(viewer, itemStack.getItemMeta()));
             else MessagesUtil.sendDebugMessages("ItemStack has no ItemMeta in locked item?");
             return itemStack;
         }
         return itemStack;
-    }
-
-    @Contract("_, _ -> param2")
-    @NotNull
-    @SuppressWarnings("Duplicates")
-    private ItemMeta processLoreLines(Player viewer, @NotNull ItemMeta itemMeta) {
-        List<String> processedLore = new ArrayList<>();
-
-        if (itemMeta.hasDisplayName()) {
-            itemMeta.setDisplayName(Hooks.processPlaceholders(viewer, itemMeta.getDisplayName()));
-        }
-
-        if (itemMeta.hasLore()) {
-            for (String loreLine : itemMeta.getLore()) {
-                processedLore.add(Hooks.processPlaceholders(viewer, loreLine));
-            }
-        }
-
-        if (itemMeta instanceof SkullMeta skullMeta) {
-            if (skullMeta.hasOwner() && skullMeta.getOwner() != null) {
-                skullMeta.setOwner(Hooks.processPlaceholders(viewer, skullMeta.getOwner()));
-            }
-        }
-        itemMeta.setLore(processedLore);
-        return itemMeta;
     }
 }
