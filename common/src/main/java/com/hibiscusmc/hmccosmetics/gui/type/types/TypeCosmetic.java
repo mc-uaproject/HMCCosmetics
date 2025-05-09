@@ -59,16 +59,21 @@ public class TypeCosmetic extends Type {
         boolean isUnEquippingCosmetic = false;
         if (cosmeticHolder.getCosmetic(cosmetic.getSlot()) == cosmetic) isUnEquippingCosmetic = true;
 
+        String dyeClick = Settings.getCosmeticDyeClickType();
         String requiredClick;
         if (isUnEquippingCosmetic) requiredClick = Settings.getCosmeticUnEquipClickType();
         else requiredClick = Settings.getCosmeticEquipClickType();
 
         MessagesUtil.sendDebugMessages("Required click type: " + requiredClick);
         MessagesUtil.sendDebugMessages("Click type: " + clickType.name());
-        if (!requiredClick.equalsIgnoreCase("ANY") && !requiredClick.equalsIgnoreCase(clickType.name())) {
+        boolean isRequiredClick = requiredClick.equalsIgnoreCase("ANY") || requiredClick.equalsIgnoreCase(clickType.name());
+        boolean isDyeClick = dyeClick.equalsIgnoreCase("ANY") || dyeClick.equalsIgnoreCase(clickType.name());
+        if (!isRequiredClick && !isDyeClick) {
             MessagesUtil.sendMessage(viewer.getPlayer(), "invalid-click-type");
             return;
         }
+
+        if (!isRequiredClick && isDyeClick) isUnEquippingCosmetic = false;
 
         List<String> actionStrings = new ArrayList<>();
         ConfigurationNode actionConfig = config.node("actions");
@@ -101,9 +106,9 @@ public class TypeCosmetic extends Type {
                 if (!actionConfig.node("on-equip").virtual()) actionStrings.addAll(actionConfig.node("on-equip").getList(String.class));
                 MessagesUtil.sendDebugMessages("on-equip");
                 // TODO: Redo this
-                if (cosmetic.isDyable() && Hooks.isActiveHook("HMCColor")) {
+                if (cosmetic.isDyeable() && isDyeClick && Hooks.isActiveHook("HMCColor")) {
                     DyeMenu.openMenu(viewer, cosmeticHolder, cosmetic);
-                } else {
+                } else if (isRequiredClick) {
                     cosmeticHolder.addCosmetic(cosmetic);
                 }
             }

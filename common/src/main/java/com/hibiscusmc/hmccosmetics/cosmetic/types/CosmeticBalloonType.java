@@ -23,7 +23,7 @@ public class CosmeticBalloonType extends Cosmetic {
     @Getter
     private final String modelName;
     @Getter
-    private List<String> dyableParts;
+    private List<String> dyeableParts;
     @Getter
     private final boolean showLead;
     @Getter
@@ -42,8 +42,8 @@ public class CosmeticBalloonType extends Cosmetic {
             balloonOffset = Settings.loadVector(balloonOffsetNode);
 
         try {
-            if (!config.node("dyable-parts").virtual()) {
-                dyableParts = config.node("dyable-parts").getList(String.class);
+            if (!config.node("dyeable-parts").virtual()) {
+                dyeableParts = config.node("dyeable-parts").getList(String.class);
             }
         } catch (SerializationException e) {
             // Seriously?
@@ -101,10 +101,10 @@ public class CosmeticBalloonType extends Cosmetic {
         }
     }
 
-    public boolean isDyablePart(String name) {
+    public boolean isDyeablePart(String name) {
         // If player does not define parts, dye whole model
-        if (dyableParts == null) return true;
-        if (dyableParts.isEmpty()) return true;
-        return dyableParts.contains(name);
+        if (dyeableParts == null) return true;
+        if (dyeableParts.isEmpty()) return true;
+        return dyeableParts.contains(name);
     }
 }
