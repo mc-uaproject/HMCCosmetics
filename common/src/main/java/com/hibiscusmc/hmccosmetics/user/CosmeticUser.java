@@ -414,7 +414,7 @@ public class CosmeticUser implements CosmeticHolder {
 
             if (colors.containsKey(cosmetic.getSlot())) {
                 Color color = colors.get(cosmetic.getSlot());
-                NMSHandlers.getHandler().getUtilHandler().setColor(item, color);
+                item = NMSHandlers.getHandler().getUtilHandler().setColor(item, color);
             }
         }
         return item;
