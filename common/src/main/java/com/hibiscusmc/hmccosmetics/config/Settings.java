@@ -53,6 +53,7 @@ public class Settings {
     private static final String COSMETIC_TYPE_SETTINGS_PATH = "cosmetic-type";
     private static final String EQUIP_CLICK_TYPE = "equip-click";
     private static final String UNEQUIP_CLICK_TYPE = "unequip-click";
+    private static final String DYE_CLICK_TYPE = "dye-click";
     private static final String SHADING_PATH = "shading";
     private static final String FIRST_ROW_SHIFT_PATH = "first-row-shift";
     private static final String SEQUENT_ROW_SHIFT_PATH = "sequent-row-shift";
@@ -129,6 +130,8 @@ public class Settings {
     private static String cosmeticEquipClickType;
     @Getter
     private static String cosmeticUnEquipClickType;
+    @Getter
+    private static String cosmeticDyeClickType;
     @Getter
     private static boolean defaultShading;
     @Getter
@@ -227,6 +230,7 @@ public class Settings {
         ConfigurationNode cosmeticTypeSettings = menuSettings.node(COSMETIC_TYPE_SETTINGS_PATH);
         cosmeticEquipClickType = cosmeticTypeSettings.node(EQUIP_CLICK_TYPE).getString("ALL");
         cosmeticUnEquipClickType = cosmeticTypeSettings.node(UNEQUIP_CLICK_TYPE).getString("ALL");
+        cosmeticDyeClickType = cosmeticTypeSettings.node(DYE_CLICK_TYPE).getString("ALL");
 
         final var balloonSection = cosmeticSettings.node(BALLOON_OFFSET);
         balloonOffset = loadVector(balloonSection);
