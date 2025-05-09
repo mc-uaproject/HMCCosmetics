@@ -69,6 +69,8 @@ allprojects {
 
         // Hibiscus Commons
         maven("https://repo.hibiscusmc.com/releases")
+
+        mavenLocal()
     }
 
     dependencies {
@@ -86,7 +88,7 @@ allprojects {
         compileOnly("io.github.toxicity188:BetterCommand:1.3") //BetterCommand library
         //compileOnly("it.unimi.dsi:fastutil:8.5.14")
         compileOnly("org.projectlombok:lombok:1.18.34")
-        compileOnly("me.lojosho:HibiscusCommons:0.6.3-d97e5686")
+        compileOnly("me.lojosho:HibiscusCommons:0.6.3-7ef40c1")
 
         // Handled by Spigot Library Loader
         compileOnly("net.kyori:adventure-api:4.19.0")

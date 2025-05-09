@@ -22,8 +22,10 @@ import com.hibiscusmc.hmccosmetics.user.manager.UserWardrobeManager;
 import com.hibiscusmc.hmccosmetics.util.HMCCInventoryUtils;
 import com.hibiscusmc.hmccosmetics.util.MessagesUtil;
 import com.hibiscusmc.hmccosmetics.util.packets.HMCCPacketManager;
+import com.ticxo.modelengine.api.nms.NMSHandler;
 import lombok.Getter;
 import me.lojosho.hibiscuscommons.hooks.Hooks;
+import me.lojosho.hibiscuscommons.nms.NMSHandlers;
 import me.lojosho.hibiscuscommons.util.InventoryUtils;
 import me.lojosho.hibiscuscommons.util.packets.PacketManager;
 import org.bukkit.Bukkit;
@@ -405,29 +407,15 @@ public class CosmeticUser implements CosmeticHolder {
             }
 
 
-            if (colors.containsKey(cosmetic.getSlot())) {
-                Color color = colors.get(cosmetic.getSlot());
-                if (itemMeta instanceof LeatherArmorMeta leatherMeta) {
-                    leatherMeta.setColor(color);
-                } else if (itemMeta instanceof PotionMeta potionMeta) {
-                    potionMeta.setColor(color);
-                } else if (itemMeta instanceof MapMeta mapMeta) {
-                    mapMeta.setColor(color);
-                } else if (itemMeta instanceof FireworkEffectMeta fireworkMeta) {
-                    fireworkMeta.setEffect(
-                            FireworkEffect.builder()
-                            .with(FireworkEffect.Type.BALL)
-                            .withColor(color)
-                            .trail(false)
-                            .flicker(false)
-                            .build()
-                    );
-                }
-            }
             itemMeta.getPersistentDataContainer().set(HMCCInventoryUtils.getCosmeticKey(), PersistentDataType.STRING, cosmetic.getId());
             itemMeta.getPersistentDataContainer().set(InventoryUtils.getOwnerKey(), PersistentDataType.STRING, getEntity().getUniqueId().toString());
 
             item.setItemMeta(itemMeta);
+
+            if (colors.containsKey(cosmetic.getSlot())) {
+                Color color = colors.get(cosmetic.getSlot());
+                NMSHandlers.getHandler().getUtilHandler().setColor(item, color);
+            }
         }
         return item;
     }

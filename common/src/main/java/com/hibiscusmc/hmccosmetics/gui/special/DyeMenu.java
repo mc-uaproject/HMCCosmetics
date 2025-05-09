@@ -9,14 +9,14 @@ import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticHolder;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import me.lojosho.hibiscuscommons.hooks.Hooks;
-import me.lojosho.hibiscuscommons.nms.MinecraftVersion;
 import me.lojosho.hibiscuscommons.nms.NMSHandlers;
 import me.lojosho.hibiscuscommons.util.AdventureUtils;
 import me.lojosho.hibiscuscommons.util.StringUtils;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,30 +37,7 @@ public class DyeMenu {
                 ItemStack item = event.getInventory().getItem(Settings.getDyeMenuOutputSlot());
                 if (item == null) return;
 
-                Color color = null;
-                try {
-                    // Uses Idofront Colorable logic as 1.21.4+ lets any item be dyed
-                    // Requires NMS or Paper's DataComponent API
-                    // If it fails it will fall back to getting it from ItemMeta
-                    // with an extra fallback here in-case HMCColor is old
-                    color = HMCColorApi.getItemColor(item);
-                } catch (Exception e) {
-                    ItemMeta meta = item.getItemMeta();
-                    switch (meta) {
-                        case null -> { return; }
-                        case LeatherArmorMeta leatherMeta -> color = leatherMeta.getColor();
-                        case PotionMeta potionMeta -> color = potionMeta.getColor();
-                        case MapMeta mapMeta -> color = mapMeta.getColor();
-                        case FireworkEffectMeta fireworkEffectMeta -> {
-                            FireworkEffect effect = fireworkEffectMeta.getEffect();
-                            if (effect != null) {
-                                color = effect.getColors().stream().findFirst().isPresent() ? effect.getColors().stream().findFirst().get() : null;
-                            }
-                        }
-                        default -> {}
-                    }
-
-                }
+                Color color = NMSHandlers.getHandler().getUtilHandler().getColor(item);
                 if (color == null) return;
 
                 addCosmetic(viewer, cosmeticHolder, cosmetic, color);
