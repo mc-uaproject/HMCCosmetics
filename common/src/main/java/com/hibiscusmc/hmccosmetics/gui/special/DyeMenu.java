@@ -9,6 +9,8 @@ import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticHolder;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import me.lojosho.hibiscuscommons.hooks.Hooks;
+import me.lojosho.hibiscuscommons.nms.MinecraftVersion;
+import me.lojosho.hibiscuscommons.nms.NMSHandlers;
 import me.lojosho.hibiscuscommons.util.AdventureUtils;
 import me.lojosho.hibiscuscommons.util.StringUtils;
 import org.bukkit.*;
@@ -34,21 +36,30 @@ public class DyeMenu {
             if (event.getSlot() == Settings.getDyeMenuOutputSlot()) {
                 ItemStack item = event.getInventory().getItem(Settings.getDyeMenuOutputSlot());
                 if (item == null) return;
-                ItemMeta meta = item.getItemMeta();
-                if (meta == null) return;
 
                 Color color = null;
-                if (meta instanceof LeatherArmorMeta leatherMeta) {
-                    color = leatherMeta.getColor();
-                } else if (meta instanceof PotionMeta potionMeta) {
-                    color = potionMeta.getColor();
-                } else if (meta instanceof MapMeta mapMeta) {
-                    color = mapMeta.getColor();
-                } else if (meta instanceof FireworkEffectMeta fireworkEffectMeta) {
-                    FireworkEffect effect = fireworkEffectMeta.getEffect();
-                    if (effect != null) {
-                        color = effect.getColors().stream().findFirst().isPresent() ? effect.getColors().stream().findFirst().get() : null;
+                try {
+                    // Uses Idofront Colorable logic as 1.21.4+ lets any item be dyed
+                    // Requires NMS or Paper's DataComponent API
+                    // If it fails it will fall back to getting it from ItemMeta
+                    // with an extra fallback here in-case HMCColor is old
+                    color = HMCColorApi.getItemColor(item);
+                } catch (Exception e) {
+                    ItemMeta meta = item.getItemMeta();
+                    switch (meta) {
+                        case null -> { return; }
+                        case LeatherArmorMeta leatherMeta -> color = leatherMeta.getColor();
+                        case PotionMeta potionMeta -> color = potionMeta.getColor();
+                        case MapMeta mapMeta -> color = mapMeta.getColor();
+                        case FireworkEffectMeta fireworkEffectMeta -> {
+                            FireworkEffect effect = fireworkEffectMeta.getEffect();
+                            if (effect != null) {
+                                color = effect.getColors().stream().findFirst().isPresent() ? effect.getColors().stream().findFirst().get() : null;
+                            }
+                        }
+                        default -> {}
                     }
+
                 }
                 if (color == null) return;
 
