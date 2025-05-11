@@ -54,7 +54,7 @@ public class CosmeticBalloonType extends Cosmetic {
     }
 
     @Override
-    public void update(@NotNull CosmeticUser user) {
+    protected void doUpdate(@NotNull CosmeticUser user) {
         Entity entity = Bukkit.getEntity(user.getUniqueId());
         UserBalloonManager userBalloonManager = user.getBalloonManager();
 
