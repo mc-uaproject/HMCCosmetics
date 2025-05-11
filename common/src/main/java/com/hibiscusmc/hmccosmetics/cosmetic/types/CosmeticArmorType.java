@@ -31,7 +31,7 @@ public class CosmeticArmorType extends Cosmetic {
     }
 
     @Override
-    public void update(@NotNull CosmeticUser user) {
+    protected void doUpdate(@NotNull CosmeticUser user) {
         if (user.isInWardrobe()) return;
         Entity entity = Bukkit.getEntity(user.getUniqueId());
         if (entity == null) return;
