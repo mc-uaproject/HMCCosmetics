@@ -72,19 +72,21 @@ public class PlayerConnectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(@NotNull PlayerQuitEvent event) {
-        PlayerPreUnloadEvent preUnloadEvent = new PlayerPreUnloadEvent(event.getPlayer().getUniqueId());
-        Bukkit.getPluginManager().callEvent(preUnloadEvent);
-        if (preUnloadEvent.isCancelled()) return;
-
         CosmeticUser user = CosmeticUsers.getUser(event.getPlayer());
         if (user == null) return; // Player never initialized, don't do anything
+
+        PlayerPreUnloadEvent preUnloadEvent = new PlayerPreUnloadEvent(user);
+        Bukkit.getPluginManager().callEvent(preUnloadEvent);
+        if (preUnloadEvent.isCancelled()) return;
 
         PlayerUnloadEvent playerUnloadEvent = new PlayerUnloadEvent(user);
         Bukkit.getPluginManager().callEvent(playerUnloadEvent);
 
         if (user.isInWardrobe()) {
             user.leaveWardrobe(true);
-            user.getPlayer().setInvisible(false);
+
+            final Player player = user.getPlayer();
+            if(player != null) player.setInvisible(false);
         }
         Menus.removeCooldown(event.getPlayer().getUniqueId()); // Removes any menu cooldowns a player might have
         Database.save(user);
