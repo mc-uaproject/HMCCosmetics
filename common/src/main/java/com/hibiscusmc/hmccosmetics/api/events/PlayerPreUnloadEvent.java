@@ -1,10 +1,9 @@
 package com.hibiscusmc.hmccosmetics.api.events;
 
+import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Called before a player's data is un-loaded from the plugin.
@@ -14,13 +13,13 @@ import java.util.UUID;
  *     and will be kept in memory.
  * </p>
  */
-public class PlayerPreUnloadEvent extends PlayerEvent implements Cancellable {
+public class PlayerPreUnloadEvent extends PlayerCosmeticEvent implements Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private boolean cancelled = false;
 
-    public PlayerPreUnloadEvent(@NotNull UUID id) {
-        super(id);
+    public PlayerPreUnloadEvent(@NotNull CosmeticUser who) {
+        super(who);
     }
 
     @Override
