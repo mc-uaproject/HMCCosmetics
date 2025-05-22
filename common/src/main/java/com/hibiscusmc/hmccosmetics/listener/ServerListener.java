@@ -10,13 +10,15 @@ import me.lojosho.hibiscuscommons.hooks.items.HookNexo;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
 
 public class ServerListener implements Listener {
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onHookReload(HibiscusHookReload event) {
-        Hook hook = event.getHook();
-        HibiscusHookReload.ReloadType reloadType = event.getReloadType();
+    @EventHandler(priority = EventPriority.LOW)
+    public void onHookReload(@NotNull HibiscusHookReload event) {
+        final Hook hook = event.getHook();
+        final HibiscusHookReload.ReloadType reloadType = event.getReloadType();
+
         if (hook instanceof HookItemAdder) {
             if (reloadType == HibiscusHookReload.ReloadType.RELOAD) {
                 if (!Settings.isItemsAdderChangeReload()) return;
@@ -31,8 +33,8 @@ public class ServerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onAllHooksReady(HibiscusHooksAllActiveEvent event) {
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onAllHooksReady(@NotNull HibiscusHooksAllActiveEvent event) {
         HMCCosmeticsPlugin.setup();
     }
 }
