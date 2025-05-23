@@ -144,7 +144,7 @@ public class CosmeticUser implements CosmeticHolder {
             showCosmetics(HiddenReason.GAMEMODE);
         }
 
-        if (bukkitPlayer != null && Settings.getDisabledWorlds().contains(getEntity().getLocation().getWorld().getName())) {
+        if (bukkitPlayer != null && Settings.getDisabledWorlds().contains(bukkitPlayer.getLocation().getWorld().getName())) {
             MessagesUtil.sendDebugMessages("Hiding Cosmetics due to world");
             hideCosmetics(CosmeticUser.HiddenReason.WORLD);
         } else if (this.isHidden(HiddenReason.WORLD)) {
