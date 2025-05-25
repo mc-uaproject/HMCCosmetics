@@ -400,6 +400,7 @@ public class CosmeticCommand implements CommandExecutor {
                 if (user.hasCosmeticInSlot(CosmeticSlot.BACKPACK)) {
                     player.sendMessage("Backpack Location -> " + user.getUserBackpackManager().getEntityManager().getLocation());
                 }
+                player.sendMessage("Cosmetic Passengers -> " + user.getUserBackpackManager().getAreaEffectEntityId());
                 player.sendMessage("Cosmetics -> " + user.getCosmetics());
                 player.sendMessage("EntityId -> " + player.getEntityId());
                 return true;
