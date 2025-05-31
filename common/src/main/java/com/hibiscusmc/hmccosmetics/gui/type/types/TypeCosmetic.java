@@ -66,14 +66,11 @@ public class TypeCosmetic extends Type {
 
         MessagesUtil.sendDebugMessages("Required click type: " + requiredClick);
         MessagesUtil.sendDebugMessages("Click type: " + clickType.name());
-        boolean isRequiredClick = requiredClick.equalsIgnoreCase("ANY") || requiredClick.equalsIgnoreCase(clickType.name());
-        boolean isDyeClick = dyeClick.equalsIgnoreCase("ANY") || dyeClick.equalsIgnoreCase(clickType.name());
-        if (!isRequiredClick && !isDyeClick) {
-            MessagesUtil.sendMessage(viewer.getPlayer(), "invalid-click-type");
-            return;
-        }
 
-        if (!isRequiredClick && isDyeClick) isUnEquippingCosmetic = false;
+        final boolean isRequiredClick = requiredClick.equalsIgnoreCase("ANY") || requiredClick.equalsIgnoreCase(clickType.name());
+        final boolean isDyeClick = dyeClick.equalsIgnoreCase("ANY") || dyeClick.equalsIgnoreCase(clickType.name());
+
+        if (!isRequiredClick) isUnEquippingCosmetic = false;
 
         List<String> actionStrings = new ArrayList<>();
         ConfigurationNode actionConfig = config.node("actions");

@@ -30,7 +30,7 @@ public class DyeMenu {
         if (originalItem == null || !cosmetic.isDyeable()) return;
 
         Gui gui = HMCColorApi.createColorMenu(viewer);
-        gui.updateTitle(AdventureUtils.MINI_MESSAGE.deserialize(Hooks.processPlaceholders(viewer, StringUtils.parseStringToString(Settings.getDyeMenuName()))));
+        gui.updateTitle(AdventureUtils.MINI_MESSAGE.deserialize(Hooks.processPlaceholders(viewer, Settings.getDyeMenuName())));
         gui.setItem(Settings.getDyeMenuInputSlot(), new GuiItem(originalItem));
         gui.setDefaultTopClickAction(event -> {
             if (event.getSlot() == Settings.getDyeMenuOutputSlot()) {
