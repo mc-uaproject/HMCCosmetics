@@ -11,17 +11,21 @@ import com.hibiscusmc.hmccosmetics.config.Settings;
 import com.hibiscusmc.hmccosmetics.config.WardrobeSettings;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticSlot;
+import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticArmorType;
+import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticBackpackType;
+import com.hibiscusmc.hmccosmetics.cosmetic.types.CosmeticBalloonType;
 import com.hibiscusmc.hmccosmetics.cosmetic.types.*;
 import com.hibiscusmc.hmccosmetics.gui.Menu;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUsers;
-import com.hibiscusmc.hmccosmetics.user.manager.UserEmoteManager;
 import com.hibiscusmc.hmccosmetics.user.manager.UserWardrobeManager;
 import com.hibiscusmc.hmccosmetics.util.HMCCInventoryUtils;
 import com.hibiscusmc.hmccosmetics.util.HMCCServerUtils;
 import com.hibiscusmc.hmccosmetics.util.MessagesUtil;
 import com.hibiscusmc.hmccosmetics.util.packets.HMCCPacketManager;
 import me.lojosho.hibiscuscommons.api.events.*;
+import me.lojosho.hibiscuscommons.nms.MinecraftVersion;
+import me.lojosho.hibiscuscommons.nms.NMSHandlers;
 import me.lojosho.hibiscuscommons.util.packets.PacketManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -92,10 +96,6 @@ public class PlayerGameListener implements Listener {
         CosmeticUser user = CosmeticUsers.getUser(event.getPlayer().getUniqueId());
 
         if (user == null) return;
-        if (event.isSneaking()) {
-            user.getUserEmoteManager().stopEmote(UserEmoteManager.StopEmoteReason.SNEAK);
-        }
-
         if (!event.isSneaking()) return;
         if (!user.isInWardrobe()) return;
 
@@ -136,9 +136,6 @@ public class PlayerGameListener implements Listener {
         }, 2);
 
         if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.NETHER_PORTAL) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.END_PORTAL)) return;
-        if (user.getUserEmoteManager().isPlayingEmote()) {
-            user.getUserEmoteManager().stopEmote(UserEmoteManager.StopEmoteReason.TELEPORT);
-        }
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -180,14 +177,6 @@ public class PlayerGameListener implements Listener {
         if (!(event.getEntity() instanceof Player player)) return;
         CosmeticUser user = CosmeticUsers.getUser(player);
         if (user == null) return;
-        if (user.getUserEmoteManager().isPlayingEmote()) {
-            if (Settings.isEmoteInvincible()) {
-                event.setCancelled(true);
-            }
-            if (Settings.isEmoteDamageLeave()) {
-                user.getUserEmoteManager().stopEmote(UserEmoteManager.StopEmoteReason.DAMAGE);
-            }
-        }
         if (user.isInWardrobe()) {
             if (WardrobeSettings.isPreventDamage()) {
                 event.setCancelled(true);
@@ -202,10 +191,6 @@ public class PlayerGameListener implements Listener {
         Player player = event.getPlayer();
         CosmeticUser user = CosmeticUsers.getUser(player);
         if (user == null) return;
-        if (!Settings.isEmoteMoveCheck() && user.getUserEmoteManager().isPlayingEmote()) {
-            event.setCancelled(true);
-            return;
-        }
         user.updateCosmetic(CosmeticSlot.BACKPACK);
         user.updateCosmetic(CosmeticSlot.BACKPACK2);
         user.updateCosmetic(CosmeticSlot.BALLOON);
@@ -284,12 +269,6 @@ public class PlayerGameListener implements Listener {
         CosmeticUser user = CosmeticUsers.getUser(event.getPlayer().getUniqueId());
         if (user == null) return;
         // Really need to look into optimization of this
-        if (user.hasCosmeticInSlot(CosmeticSlot.EMOTE) && event.getPlayer().isSneaking() && event.getPlayer().hasPermission("hmccosmetics.emote.shiftrun")) {
-            CosmeticEmoteType cosmeticEmoteType = (CosmeticEmoteType) user.getCosmetic(CosmeticSlot.EMOTE);
-            cosmeticEmoteType.run(user);
-            event.setCancelled(true);
-            return;
-        }
         Bukkit.getScheduler().runTaskLater(HMCCosmeticsPlugin.getInstance(), () -> {
             if (user.getEntity() == null) return; // Player has likely logged off
             user.updateCosmetic(CosmeticSlot.OFFHAND);
@@ -478,7 +457,12 @@ public class PlayerGameListener implements Listener {
             public void onPacketReceiving(PacketEvent event) {
                 Player player = event.getPlayer();
                 int invTypeClicked = event.getPacket().getIntegers().read(0);
-                int slotClicked = event.getPacket().getIntegers().read(2);
+                int slotClicked = -999;
+                if (NMSHandlers.getVersion().isHigherOrEqual(MinecraftVersion.v1_21_5)) {
+                    slotClicked = event.getPacket().getShorts().read(0);
+                } else {
+                    slotClicked = event.getPacket().getIntegers().read(2);
+                }
 
                 // Must be a player inventory.
                 if (invTypeClicked != 0) return;
@@ -695,10 +679,6 @@ public class PlayerGameListener implements Listener {
                 Player player = event.getPlayer();
                 CosmeticUser user = CosmeticUsers.getUser(player);
                 if (user == null) return;
-                if (user.getUserEmoteManager().isPlayingEmote()) {
-                    event.setCancelled(true);
-                    return;
-                }
                 if (!user.isInWardrobe()) return;
                 if (!user.getWardrobeManager().getWardrobeStatus().equals(UserWardrobeManager.WardrobeStatus.RUNNING)) return;
 
@@ -717,7 +697,7 @@ public class PlayerGameListener implements Listener {
                 if (event.getPlayer() == null) return;
                 CosmeticUser user = CosmeticUsers.getUser(event.getPlayer());
                 if (user == null) return;
-                if (user.getUserEmoteManager().isPlayingEmote() || user.isInWardrobe()) {
+                if (user.isInWardrobe()) {
                     event.setCancelled(true);
                 }
             }

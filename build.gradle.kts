@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.hibiscusmc"
-version = "2.7.7${getGitCommitHash()}"
+version = "2.7.9${getGitCommitHash()}"
 
 allprojects {
     apply(plugin = "java")
@@ -86,7 +86,7 @@ allprojects {
         compileOnly("io.github.toxicity188:BetterCommand:1.3") //BetterCommand library
         //compileOnly("it.unimi.dsi:fastutil:8.5.14")
         compileOnly("org.projectlombok:lombok:1.18.34")
-        compileOnly("me.lojosho:HibiscusCommons:0.6.2-d21ebed8")
+        compileOnly("me.lojosho:HibiscusCommons:0.6.3-0f0baaf4")
 
         // Handled by Spigot Library Loader
         compileOnly("net.kyori:adventure-api:4.19.0")
@@ -97,7 +97,7 @@ allprojects {
         testCompileOnly("org.projectlombok:lombok:1.18.36")
         testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 
-        implementation("dev.triumphteam:triumph-gui:3.1.12-SNAPSHOT") {
+        implementation("dev.triumphteam:triumph-gui:3.2.0-SNAPSHOT") {
             exclude("net.kyori") // Already have adventure API
         }
         implementation("com.owen1212055:particlehelper:1.0.0-SNAPSHOT")
@@ -139,7 +139,7 @@ tasks {
         downloadPlugins {
             hangar("PlaceholderAPI", "2.11.6")
             url("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar")
-            url("https://download.luckperms.net/1567/bukkit/loader/LuckPerms-Bukkit-5.4.150.jar")
+            url("https://download.luckperms.net/1584/bukkit/loader/LuckPerms-Bukkit-5.5.0.jar")
         }
     }
 

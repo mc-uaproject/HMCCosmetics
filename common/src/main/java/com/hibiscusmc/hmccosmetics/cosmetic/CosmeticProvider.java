@@ -30,9 +30,7 @@ public abstract class CosmeticProvider {
 
         Map.entry(CosmeticSlot.BACKPACK2, CosmeticBackpack2Type::new),
 
-        Map.entry(CosmeticSlot.BALLOON, CosmeticBalloonType::new),
-
-        Map.entry(CosmeticSlot.EMOTE, CosmeticEmoteType::new)
+        Map.entry(CosmeticSlot.BALLOON, CosmeticBalloonType::new)
     );
 
     private static final String EXCEPTION_MESSAGE = "Unknown slot %s provided for mapping, if you registered your own CosmeticSlot please ensure that you've also registered a custom CosmeticProvider! Or if you have already registered a custom CosmeticProvider ensure it is registered in your plugins `onLoad` method instead of `onEnable`!";

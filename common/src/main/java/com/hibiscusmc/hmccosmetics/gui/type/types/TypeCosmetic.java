@@ -20,9 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -62,16 +59,18 @@ public class TypeCosmetic extends Type {
         boolean isUnEquippingCosmetic = false;
         if (cosmeticHolder.getCosmetic(cosmetic.getSlot()) == cosmetic) isUnEquippingCosmetic = true;
 
+        String dyeClick = Settings.getCosmeticDyeClickType();
         String requiredClick;
         if (isUnEquippingCosmetic) requiredClick = Settings.getCosmeticUnEquipClickType();
         else requiredClick = Settings.getCosmeticEquipClickType();
 
         MessagesUtil.sendDebugMessages("Required click type: " + requiredClick);
         MessagesUtil.sendDebugMessages("Click type: " + clickType.name());
-        if (!requiredClick.equalsIgnoreCase("ANY") && !requiredClick.equalsIgnoreCase(clickType.name())) {
-            MessagesUtil.sendMessage(viewer.getPlayer(), "invalid-click-type");
-            return;
-        }
+
+        final boolean isRequiredClick = requiredClick.equalsIgnoreCase("ANY") || requiredClick.equalsIgnoreCase(clickType.name());
+        final boolean isDyeClick = dyeClick.equalsIgnoreCase("ANY") || dyeClick.equalsIgnoreCase(clickType.name());
+
+        if (!isRequiredClick) isUnEquippingCosmetic = false;
 
         List<String> actionStrings = new ArrayList<>();
         ConfigurationNode actionConfig = config.node("actions");
@@ -104,9 +103,9 @@ public class TypeCosmetic extends Type {
                 if (!actionConfig.node("on-equip").virtual()) actionStrings.addAll(actionConfig.node("on-equip").getList(String.class));
                 MessagesUtil.sendDebugMessages("on-equip");
                 // TODO: Redo this
-                if (cosmetic.isDyable() && Hooks.isActiveHook("HMCColor")) {
+                if (cosmetic.isDyeable() && isDyeClick && Hooks.isActiveHook("HMCColor")) {
                     DyeMenu.openMenu(viewer, cosmeticHolder, cosmetic);
-                } else {
+                } else if (isRequiredClick) {
                     cosmeticHolder.addCosmetic(cosmetic);
                 }
             }
@@ -139,7 +138,7 @@ public class TypeCosmetic extends Type {
 
     @Override
     public ItemStack setItem(@NotNull Player viewer, @NotNull CosmeticHolder cosmeticHolder, @NotNull ConfigurationNode config, @NotNull ItemStack itemStack, int slot) {
-        if (itemStack.hasItemMeta()) itemStack.setItemMeta(processLoreLines(viewer, itemStack.getItemMeta()));
+        if (itemStack.hasItemMeta()) itemStack.setItemMeta(processItemMeta(viewer, itemStack.getItemMeta()));
         else MessagesUtil.sendDebugMessages("ItemStack has no ItemMeta?");
 
         if (config.node("cosmetic").virtual()) {
@@ -164,7 +163,7 @@ public class TypeCosmetic extends Type {
             } catch (SerializationException e) {
                 throw new RuntimeException(e);
             }
-            if (itemStack.hasItemMeta()) itemStack.setItemMeta(processLoreLines(viewer, itemStack.getItemMeta()));
+            if (itemStack.hasItemMeta()) itemStack.setItemMeta(processItemMeta(viewer, itemStack.getItemMeta()));
             else MessagesUtil.sendDebugMessages("ItemStack has no ItemMeta in equipped item?");
             return itemStack;
         }
@@ -182,35 +181,10 @@ public class TypeCosmetic extends Type {
             } catch (SerializationException e) {
                 throw new RuntimeException(e);
             }
-            if (itemStack.hasItemMeta()) itemStack.setItemMeta(processLoreLines(viewer, itemStack.getItemMeta()));
+            if (itemStack.hasItemMeta()) itemStack.setItemMeta(processItemMeta(viewer, itemStack.getItemMeta()));
             else MessagesUtil.sendDebugMessages("ItemStack has no ItemMeta in locked item?");
             return itemStack;
         }
         return itemStack;
-    }
-
-    @Contract("_, _ -> param2")
-    @NotNull
-    @SuppressWarnings("Duplicates")
-    private ItemMeta processLoreLines(Player viewer, @NotNull ItemMeta itemMeta) {
-        List<String> processedLore = new ArrayList<>();
-
-        if (itemMeta.hasDisplayName()) {
-            itemMeta.setDisplayName(Hooks.processPlaceholders(viewer, itemMeta.getDisplayName()));
-        }
-
-        if (itemMeta.hasLore()) {
-            for (String loreLine : itemMeta.getLore()) {
-                processedLore.add(Hooks.processPlaceholders(viewer, loreLine));
-            }
-        }
-
-        if (itemMeta instanceof SkullMeta skullMeta) {
-            if (skullMeta.hasOwner() && skullMeta.getOwner() != null) {
-                skullMeta.setOwner(Hooks.processPlaceholders(viewer, skullMeta.getOwner()));
-            }
-        }
-        itemMeta.setLore(processedLore);
-        return itemMeta;
     }
 }

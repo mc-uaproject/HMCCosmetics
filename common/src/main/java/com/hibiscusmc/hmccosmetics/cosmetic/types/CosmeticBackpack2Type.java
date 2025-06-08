@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Getter
 public class CosmeticBackpack2Type extends CosmeticBackpackType {
 
-    @Getter
     private int height = -1;
     private ItemStack firstPersonBackpack;
 
@@ -102,7 +102,4 @@ public class CosmeticBackpack2Type extends CosmeticBackpackType {
         return firstPersonBackpack != null;
     }
 
-    public ItemStack getFirstPersonBackpack() {
-        return firstPersonBackpack;
-    }
 }

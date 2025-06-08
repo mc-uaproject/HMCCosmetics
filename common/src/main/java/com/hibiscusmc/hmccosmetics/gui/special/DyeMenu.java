@@ -9,12 +9,14 @@ import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticHolder;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
 import me.lojosho.hibiscuscommons.hooks.Hooks;
-import me.lojosho.hibiscuscommons.util.ColorBuilder;
+import me.lojosho.hibiscuscommons.nms.NMSHandlers;
+import me.lojosho.hibiscuscommons.util.AdventureUtils;
 import me.lojosho.hibiscuscommons.util.StringUtils;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,31 +27,17 @@ public class DyeMenu {
             return;
         }
         ItemStack originalItem = cosmetic.getItem();
-        if (originalItem == null || !cosmetic.isDyable()) return;
+        if (originalItem == null || !cosmetic.isDyeable()) return;
 
         Gui gui = HMCColorApi.createColorMenu(viewer);
-        gui.updateTitle(Hooks.processPlaceholders(viewer, StringUtils.parseStringToString(Settings.getDyeMenuName())));
+        gui.updateTitle(AdventureUtils.MINI_MESSAGE.deserialize(Hooks.processPlaceholders(viewer, Settings.getDyeMenuName())));
         gui.setItem(Settings.getDyeMenuInputSlot(), new GuiItem(originalItem));
         gui.setDefaultTopClickAction(event -> {
             if (event.getSlot() == Settings.getDyeMenuOutputSlot()) {
                 ItemStack item = event.getInventory().getItem(Settings.getDyeMenuOutputSlot());
                 if (item == null) return;
-                ItemMeta meta = item.getItemMeta();
-                if (meta == null) return;
 
-                Color color = null;
-                if (meta instanceof LeatherArmorMeta leatherMeta) {
-                    color = leatherMeta.getColor();
-                } else if (meta instanceof PotionMeta potionMeta) {
-                    color = potionMeta.getColor();
-                } else if (meta instanceof MapMeta mapMeta) {
-                    color = mapMeta.getColor();
-                } else if (meta instanceof FireworkEffectMeta fireworkEffectMeta) {
-                    FireworkEffect effect = fireworkEffectMeta.getEffect();
-                    if (effect != null) {
-                        color = effect.getColors().stream().findFirst().isPresent() ? effect.getColors().stream().findFirst().get() : null;
-                    }
-                }
+                Color color = NMSHandlers.getHandler().getUtilHandler().getColor(item);
                 if (color == null) return;
 
                 addCosmetic(viewer, cosmeticHolder, cosmetic, color);

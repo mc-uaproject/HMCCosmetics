@@ -4,14 +4,12 @@ import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticHolder;
 import com.hibiscusmc.hmccosmetics.gui.action.Actions;
 import com.hibiscusmc.hmccosmetics.gui.type.Type;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
-import me.lojosho.hibiscuscommons.hooks.Hooks;
 import me.lojosho.shaded.configurate.ConfigurationNode;
 import me.lojosho.shaded.configurate.serialize.SerializationException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -78,27 +76,9 @@ public class TypeEmpty extends Type {
     @Override
     @SuppressWarnings("Duplicates")
     public ItemStack setItem(Player viewer, CosmeticHolder cosmeticHolder, ConfigurationNode config, @NotNull ItemStack itemStack, int slot) {
-        List<String> processedLore = new ArrayList<>();
         ItemMeta itemMeta = itemStack.getItemMeta();
 
-        if (itemMeta.hasDisplayName()) {
-            itemMeta.setDisplayName(Hooks.processPlaceholders(viewer, itemMeta.getDisplayName()));
-        }
-
-        if (itemMeta.hasLore()) {
-            for (String loreLine : itemMeta.getLore()) {
-                processedLore.add(Hooks.processPlaceholders(viewer, loreLine));
-            }
-        }
-
-        if (itemMeta instanceof SkullMeta skullMeta) {
-            if (skullMeta.hasOwner() && skullMeta.getOwner() != null) {
-                skullMeta.setOwner(Hooks.processPlaceholders(viewer, skullMeta.getOwner()));
-            }
-        }
-
-        itemMeta.setLore(processedLore);
-        itemStack.setItemMeta(itemMeta);
+        itemStack.setItemMeta(processItemMeta(viewer, itemMeta));
         return itemStack;
     }
 

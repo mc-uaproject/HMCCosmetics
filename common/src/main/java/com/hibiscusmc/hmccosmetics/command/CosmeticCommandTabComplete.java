@@ -6,7 +6,6 @@ import com.hibiscusmc.hmccosmetics.config.WardrobeSettings;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetic;
 import com.hibiscusmc.hmccosmetics.cosmetic.CosmeticSlot;
 import com.hibiscusmc.hmccosmetics.cosmetic.Cosmetics;
-import com.hibiscusmc.hmccosmetics.emotes.EmoteManager;
 import com.hibiscusmc.hmccosmetics.gui.Menu;
 import com.hibiscusmc.hmccosmetics.gui.Menus;
 import com.hibiscusmc.hmccosmetics.user.CosmeticUser;
@@ -44,8 +43,6 @@ public class CosmeticCommandTabComplete implements TabCompleter {
             if (hasPermission(sender, "hmccosmetics.cmd.hide")) completions.add("hide");
             if (hasPermission(sender, "hmccosmetics.cmd.show")) completions.add("show");
             if (hasPermission(sender, "hmccosmetics.cmd.debug")) completions.add("debug");
-            if (hasPermission(sender, "hmccosmetics.cmd.emote")) completions.add("emote");
-            if (hasPermission(sender, "hmccosmetics.cmd.playemote")) completions.add("playemote");
             if (hasPermission(sender, "hmccosmetics.cmd.disableall")) completions.add("disableall");
             if (hasPermission(sender, "hmccosmetics.cmd.hiddenreasons")) completions.add("hiddenreasons");
             if (hasPermission(sender, "hmccosmetics.cmd.clearhiddenreasons")) completions.add("clearhiddenreasons");
@@ -74,7 +71,7 @@ public class CosmeticCommandTabComplete implements TabCompleter {
                         if (menu.canOpen(user.getPlayer())) completions.add(menu.getId());
                     }
                 }
-                case "dataclear", "hide", "show", "emote", "hiddenreasons", "clearhiddenreasons" -> {
+                case "dataclear", "hide", "show", "hiddenreasons", "clearhiddenreasons" -> {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         completions.add(player.getName());
                     }
@@ -102,7 +99,6 @@ public class CosmeticCommandTabComplete implements TabCompleter {
                         completions.add(wardrobe.getId());
                     }
                 }
-                case "playemote" -> completions.addAll(EmoteManager.getAllNames());
             }
             StringUtil.copyPartialMatches(args[1], completions, finalCompletions);
         }
@@ -112,7 +108,7 @@ public class CosmeticCommandTabComplete implements TabCompleter {
                 case "dye" -> {
                     completions.add("#FFFFFF");
                 }
-                case "menu", "wardrobe", "apply", "unapply", "playemote" -> {
+                case "menu", "wardrobe", "apply", "unapply" -> {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         completions.add(player.getName());
                     }

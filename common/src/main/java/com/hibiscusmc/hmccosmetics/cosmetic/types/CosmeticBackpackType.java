@@ -37,7 +37,7 @@ public class CosmeticBackpackType extends Cosmetic {
     }
 
     @Override
-    public void update(@NotNull CosmeticUser user) {
+    protected void doUpdate(@NotNull CosmeticUser user) {
         Entity entity = user.getEntity();
         if (entity == null) return;
 

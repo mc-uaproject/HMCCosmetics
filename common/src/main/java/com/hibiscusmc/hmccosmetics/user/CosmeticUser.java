@@ -15,13 +15,14 @@ import com.hibiscusmc.hmccosmetics.database.UserData;
 import com.hibiscusmc.hmccosmetics.gui.Menus;
 import com.hibiscusmc.hmccosmetics.user.manager.UserBackpackManager;
 import com.hibiscusmc.hmccosmetics.user.manager.UserBalloonManager;
-import com.hibiscusmc.hmccosmetics.user.manager.UserEmoteManager;
 import com.hibiscusmc.hmccosmetics.user.manager.UserWardrobeManager;
 import com.hibiscusmc.hmccosmetics.util.HMCCInventoryUtils;
 import com.hibiscusmc.hmccosmetics.util.MessagesUtil;
 import com.hibiscusmc.hmccosmetics.util.packets.HMCCPacketManager;
+import com.ticxo.modelengine.api.nms.NMSHandler;
 import lombok.Getter;
 import me.lojosho.hibiscuscommons.hooks.Hooks;
+import me.lojosho.hibiscuscommons.nms.NMSHandlers;
 import me.lojosho.hibiscuscommons.util.InventoryUtils;
 import me.lojosho.hibiscuscommons.util.packets.PacketManager;
 import org.bukkit.Bukkit;
@@ -53,8 +54,6 @@ public class CosmeticUser implements CosmeticHolder {
     private UserBackpackManager userBackpackManager;
     @Getter
     private UserBackpackManager userBackpack2Manager;
-    @Getter
-    private final UserEmoteManager userEmoteManager;
 
     // Cosmetic Settings/Toggles
     private final ArrayList<HiddenReason> hiddenReason = new ArrayList<>();
@@ -73,7 +72,6 @@ public class CosmeticUser implements CosmeticHolder {
 
     public CosmeticUser(@NotNull UUID uuid) {
         this.uniqueId = uuid;
-        this.userEmoteManager = new UserEmoteManager(this);
     }
 
     /**
@@ -145,7 +143,7 @@ public class CosmeticUser implements CosmeticHolder {
             showCosmetics(HiddenReason.GAMEMODE);
         }
 
-        if (bukkitPlayer != null && Settings.getDisabledWorlds().contains(getEntity().getLocation().getWorld().getName())) {
+        if (bukkitPlayer != null && Settings.getDisabledWorlds().contains(bukkitPlayer.getLocation().getWorld().getName())) {
             MessagesUtil.sendDebugMessages("Hiding Cosmetics due to world");
             hideCosmetics(CosmeticUser.HiddenReason.WORLD);
         } else if (this.isHidden(HiddenReason.WORLD)) {
@@ -193,7 +191,7 @@ public class CosmeticUser implements CosmeticHolder {
 
         this.updateCosmetic();
 
-        if(isHidden() && !getUserEmoteManager().isPlayingEmote() && !playerCosmetics.isEmpty()) {
+        if(isHidden() && !playerCosmetics.isEmpty()) {
             MessagesUtil.sendActionBar(getPlayer(), "hidden-cosmetics");
         }
     }
@@ -290,9 +288,6 @@ public class CosmeticUser implements CosmeticHolder {
         if (slot == CosmeticSlot.BALLOON) {
             despawnBalloon();
         }
-        if (slot == CosmeticSlot.EMOTE) {
-            if (getUserEmoteManager().isPlayingEmote()) getUserEmoteManager().stopEmote(UserEmoteManager.StopEmoteReason.UNEQUIP);
-        }
         colors.remove(slot);
         playerCosmetics.remove(slot);
         removeArmor(slot);
@@ -325,7 +320,7 @@ public class CosmeticUser implements CosmeticHolder {
 
         for (Cosmetic cosmetic : playerCosmetics.values()) {
             if (cosmetic instanceof CosmeticArmorType armorType) {
-                if (getUserEmoteManager().isPlayingEmote() || isInWardrobe()) return;
+                if (isInWardrobe()) return;
                 if (!(getEntity() instanceof HumanEntity humanEntity)) return;
 
                 boolean requireEmpty = Settings.getSlotOption(armorType.getEquipSlot()).isRequireEmpty();
@@ -420,29 +415,15 @@ public class CosmeticUser implements CosmeticHolder {
             }
 
 
-            if (colors.containsKey(cosmetic.getSlot())) {
-                Color color = colors.get(cosmetic.getSlot());
-                if (itemMeta instanceof LeatherArmorMeta leatherMeta) {
-                    leatherMeta.setColor(color);
-                } else if (itemMeta instanceof PotionMeta potionMeta) {
-                    potionMeta.setColor(color);
-                } else if (itemMeta instanceof MapMeta mapMeta) {
-                    mapMeta.setColor(color);
-                } else if (itemMeta instanceof FireworkEffectMeta fireworkMeta) {
-                    fireworkMeta.setEffect(
-                            FireworkEffect.builder()
-                            .with(FireworkEffect.Type.BALL)
-                            .withColor(color)
-                            .trail(false)
-                            .flicker(false)
-                            .build()
-                    );
-                }
-            }
             itemMeta.getPersistentDataContainer().set(HMCCInventoryUtils.getCosmeticKey(), PersistentDataType.STRING, cosmetic.getId());
             itemMeta.getPersistentDataContainer().set(InventoryUtils.getOwnerKey(), PersistentDataType.STRING, getEntity().getUniqueId().toString());
 
             item.setItemMeta(itemMeta);
+
+            if (colors.containsKey(cosmetic.getSlot())) {
+                Color color = colors.get(cosmetic.getSlot());
+                item = NMSHandlers.getHandler().getUtilHandler().setColor(item, color);
+            }
         }
         return item;
     }
@@ -663,13 +644,13 @@ public class CosmeticUser implements CosmeticHolder {
     }
 
     public List<CosmeticSlot> getDyeableSlots() {
-        ArrayList<CosmeticSlot> dyableSlots = new ArrayList<>();
+        ArrayList<CosmeticSlot> dyeableSlots = new ArrayList<>();
 
         for (Cosmetic cosmetic : playerCosmetics.values()) {
-            if (cosmetic.isDyable()) dyableSlots.add(cosmetic.getSlot());
+            if (cosmetic.isDyeable()) dyeableSlots.add(cosmetic.getSlot());
         }
 
-        return dyableSlots;
+        return dyeableSlots;
     }
 
     @Override
